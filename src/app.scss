@@ -1,0 +1,25 @@
+/* src/app.scss */
+
+// Define global variables
+$primary-color: #0070f3;
+$secondary-color: #f0f0f0;
+$font-stack: 'Helvetica, Arial, sans-serif';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 1rem;
+  font-weight: inherit;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  letter-spacing: 2px;
+}
+
+button {
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
