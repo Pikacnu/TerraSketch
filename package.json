@@ -13,6 +13,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/adapter-static": "^3.0.2",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/pako": "^2.0.3",
@@ -33,6 +34,6 @@
 		"pako": "^2.1.0",
 		"prismarine-nbt": "^2.5.0",
 		"sass": "^1.77.8",
-		"util": "^0.12.5",
+		"util": "^0.12.5"
 	}
 }
