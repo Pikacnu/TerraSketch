@@ -95,7 +95,7 @@
             <Button iconClass="fas fa-slash" label="" onClick={drawLineString} />
             <Button iconClass="fas fa-draw-polygon" label="" onClick={drawPolygon} />
             <Button iconClass="far fa-square" label="" onClick={drawRectangle} />
-            <Button iconClass="far fa-circle" label="" onClick={drawCircle} />
+            <!-- <Button iconClass="far fa-circle" label="" onClick={drawCircle} /> -->
         {/if}
         {#if featuresSelected}
             <Button iconClass="fas fa-arrows-alt" label="" onClick={toggleMoveMode} bordered={isMoveMode} />

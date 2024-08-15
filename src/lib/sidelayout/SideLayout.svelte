@@ -118,7 +118,7 @@
     .sidelayout {
       background: rgb(23, 25, 26);
       position: relative;
-      overflow: hidden;
+      overflow: auto;
       box-sizing: border-box;
       display: flex;
     }

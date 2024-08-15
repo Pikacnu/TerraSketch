@@ -2,11 +2,11 @@
     import Window from '../../components/Window.svelte';
     
     import PolygonCreator from './tabs/PolygonCreator.svelte';
-    import Convertor from './tabs/Convertor.svelte';
+    import Converter from './tabs/Converter.svelte';
 
     const components = {
         'Polygon Creator': PolygonCreator,
-        'Convertor': Convertor,
+        'Converter': Converter,
     };
 
     export let onResize: (event: MouseEvent, index: number) => void;

@@ -1,11 +1,27 @@
-// src/utils/keyboardUtils.ts
-
-import { getMap, getSelectInteraction, deleteSelectedFeatures } from './mapUtils';
-import VectorLayer from 'ol/layer/Vector';
+import { getMap, getSelectInteraction, deleteSelectedFeatures, copySelectedFeatures, pasteCopiedFeatures } from './mapUtils';
 
 function handleKeyDown(event: KeyboardEvent) {
+    // Check if the focused element is inside the table in Features.svelte
+    const focusedElement = document.activeElement as HTMLElement;
+    if (focusedElement.closest('table')) {
+        // If the focused element is within a table, do not proceed with map-related operations
+        return;
+    }
+
     if (event.key === 'Backspace' || event.key === 'Delete') {
         deleteSelectedFeatures();
+    }
+
+    // Handle Ctrl+C (Copy)
+    if (event.key === 'c' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault(); // Prevent the default copy action
+        copySelectedFeatures();
+    }
+
+    // Handle Ctrl+V (Paste)
+    if (event.key === 'v' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault(); // Prevent the default paste action
+        pasteCopiedFeatures();
     }
 }
 
