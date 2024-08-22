@@ -6,6 +6,9 @@
     setActiveLayer,
     getMap,
     importGeoJSON,
+    vectorLayers,
+    map,
+    renameLayer,
   } from "../../../../../utils/mapUtils";
   import WindowButton from "$lib/common/WindowButton.svelte";
   import type { Vector as VectorLayer } from "ol/layer";
@@ -21,6 +24,10 @@
   import LineString from "ol/geom/LineString";
   import Polygon from "ol/geom/Polygon";
   import type { FeatureExport } from "../../../../../utils/iFeatureExprt";
+  import {
+    deleteVectorLayerById,
+    retrieveAllVectorLayers,
+  } from "../../../../../utils/saveLayers";
 
   interface Layer {
     id: string; // Unique ID
@@ -34,14 +41,41 @@
   let fileInput: HTMLInputElement;
 
   onMount(() => {
-    const initialLayer = createVectorLayer("Layer 1");
-    const initialLayerId = initialLayer.get("id");
+    retrieveAllVectorLayers()
+      .then((listOfLayers) => {
+        let firstId = "";
 
-    layers.push({ id: initialLayerId, name: "Layer 1", visible: true });
-    setActiveLayer(initialLayerId);
-    selectedLayerId = initialLayerId;
+        Object.keys(listOfLayers).forEach((id, index) => {
+          if (listOfLayers.hasOwnProperty(id)) {
+            vectorLayers[id] = listOfLayers[id].layer;
 
-    console.log("Mounted with initial layer:", initialLayerId);
+            vectorLayers[id].set("id", id); // Set a unique ID for each layer
+            vectorLayers[id].set("name", listOfLayers[id].name);
+            map.addLayer(listOfLayers[id].layer);
+
+            if (index === 0) {
+              layers.push({
+                id: id,
+                name: listOfLayers[id].name,
+                visible: true,
+              });
+              firstId = id;
+            } else {
+              layers.push({
+                id: id,
+                name: listOfLayers[id].name,
+                visible: true,
+              });
+            }
+          }
+        });
+
+        setActiveLayer(firstId);
+        selectedLayerId = firstId;
+      })
+      .catch(() => {
+        console.log("No layers found. Create a new one.");
+      });
   });
 
   // Function to add a new layer
@@ -60,12 +94,15 @@
 
   // Function to delete the selected layer
   function deleteLayer() {
-    if (selectedLayerId) {
-      removeVectorLayer(selectedLayerId);
-      layers = layers.filter((layer) => layer.id !== selectedLayerId);
-      console.log(`Deleted layer with ID: ${selectedLayerId}`);
-      selectedLayerId = null; // Clear the selection
-    }
+    alert("delete text placeholder");
+    // if (selectedLayerId) {
+    //   deleteVectorLayerById(selectedLayerId).then(() => {
+    //     removeVectorLayer(selectedLayerId!);
+    //     layers = layers.filter((layer) => layer.id !== selectedLayerId);
+    //     console.log(`Deleted layer with ID: ${selectedLayerId}`);
+    //     selectedLayerId = null; // Clear the selection
+    //   });
+    // }
   }
 
   // Function to select a layer by its unique ID
@@ -119,6 +156,9 @@
         console.error("Error importing GeoJSON file:", error);
       }
     }
+
+    // Clear the file input so the same file can be selected again
+    input.value = "";
   }
 
   function handleExport() {
@@ -142,15 +182,15 @@
           const elevationEnd = feature.get("elevationEnd");
           const block = feature.get("block");
 
-
           // Define and populate FeatureExport object
           const featureExport: FeatureExport = {
-            shape: feature.getGeometry()?.getType() ?? 'unknown',
+            shape: feature.getGeometry()?.getType() ?? "unknown",
             coords: [],
-            elevationStart: elevation != null ? elevation : elevationStart ?? 0,
-            elevationEnd: elevation != null ? elevation : elevationEnd ?? 0,
-            height: 1, 
-            block: block
+            elevationStart:
+              elevation != null ? elevation : (elevationStart ?? 0),
+            elevationEnd: elevation != null ? elevation : (elevationEnd ?? 0),
+            height: 1,
+            block: block,
           };
 
           if (geometry) {
@@ -222,6 +262,22 @@
       fileInput.click();
     }
   }
+
+  let inputValue = "";
+
+  function handleInputClick(event: any) {
+    // Prevent click event from bubbling up to the parent div
+    event.stopPropagation();
+  }
+
+  function handleInput(event: any) {
+    inputValue = event.target.value;
+  }
+
+  function handleBlur(id: string) {
+    renameLayer(id, inputValue);
+    // console.log("User clicked away. Input value:", inputValue);
+  }
 </script>
 
 <div class="layers-manager">
@@ -254,11 +310,21 @@
         class="layer-item {selectedLayerId === layer.id ? 'selected' : ''}"
         on:click={() => selectLayer(layer.id)}
       >
-        <span>{layer.name}</span>
+        <input
+          class="layer-name-input"
+          type="text"
+          value={layer.name}
+          on:click={handleInputClick}
+          on:blur={() => handleBlur(layer.id)}
+          on:input={handleInput}
+        />
         <input
           type="checkbox"
+          on:click={(event) => {
+            event.stopPropagation();
+            toggleVisibility(layer, event);
+          }}
           checked={layer.visible}
-          on:change={(event) => toggleVisibility(layer, event)}
         />
       </div>
     {/each}
@@ -293,8 +359,7 @@
 
       .layer-item {
         padding: 8px;
-        height: 32px;
-        margin-bottom: 5px;
+        margin-bottom: 4px;
         background: rgba(255, 255, 255, 0.1);
         cursor: pointer;
         display: flex;
@@ -319,6 +384,39 @@
         input[type="checkbox"] {
           margin-left: 10px;
           cursor: pointer;
+          appearance: none; /* Remove default checkbox appearance */
+          width: 24px; /* Set width */
+          height: 24px; /* Set height */
+          border: 1px solid rgba(255, 255, 255, 0.2); /* Border color */
+          background: rgba(0, 0, 0, 0.05); /* Default background */
+          position: relative;
+
+          &:checked {
+            background: green; /* Background color when checked */
+            background: green;
+          }
+
+          &:checked:before {
+            content: "";
+            position: absolute;
+            top: 3px; /* Adjust based on your preference */
+            left: 8px; /* Adjust based on your preference */
+            width: 4px; /* Width of the checkmark */
+            height: 12px; /* Height of the checkmark */
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 1; /* Show checkmark when checked */
+          }
+        }
+
+        .layer-name-input {
+          border: none;
+          padding: 8px;
+          background: rgba(0, 0, 0, 0.4);
+          color: white;
+          font-size: 0.8rem;
+          outline: none;
         }
       }
     }

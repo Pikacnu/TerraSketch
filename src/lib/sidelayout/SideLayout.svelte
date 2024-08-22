@@ -1,7 +1,6 @@
 <script lang="ts">
     import Button from '../common/Button.svelte';
     import FirstWindow from './windows/firstwindow/FirstWindow.svelte';
-    import Window from './components/Window.svelte';
     import SecondWindow from './windows/secondwindow/SecondWindow.svelte';
     import ThirdWindow from './windows/thirdwindow/ThirdWindow.svelte';
     import { moveToLocation } from '../../utils/mapUtils'; // Import the moveToLocation function

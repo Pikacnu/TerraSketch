@@ -8,7 +8,7 @@
 <main>
 	<Sidebar />
 	<Map />
-	<SideLayout />
+	<SideLayout /> 
 </main>
 
 <style lang="scss">

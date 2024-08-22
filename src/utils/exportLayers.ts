@@ -3,9 +3,6 @@ import { fromGeo } from "./terraconvert/terraconvert";
 import pako from "pako";
 import { writeUncompressed, type NBT, TagType } from "prismarine-nbt";
 import type { FeatureExport } from "./iFeatureExprt";
-import { Feature } from "ol";
-import Features from "$lib/sidelayout/windows/secondwindow/tabs/Features.svelte";
-
 /**
  * Transforms coordinates from one spatial reference system to another.
  * @param flatCoords - Flat array of coordinates.

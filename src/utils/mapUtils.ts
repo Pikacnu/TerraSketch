@@ -23,7 +23,7 @@ import { writable } from "svelte/store";
 // Create a Svelte store to keep track of the selected feature type
 export const selectedFeature = writable<Feature | null>(null);
 
-let map: OLMap;
+export let map: OLMap;
 let drawInteraction: Draw | null = null;
 let selectInteraction: Select | null = null;
 let translateInteraction: Translate | null = null;
@@ -31,7 +31,7 @@ let modifyInteraction: Modify | null = null;
 let doubleClickZoomInteraction: DoubleClickZoom | null = null;
 
 // Manage multiple vector layers using a plain object
-let vectorLayers: { [key: string]: VectorLayer } = {};
+export let vectorLayers: { [key: string]: VectorLayer } = {};
 let activeLayerId: string | null = null;
 
 // Define styles for features
@@ -55,7 +55,7 @@ const unselectedFeatureStyle = new Style({
   }),
 });
 
-const inactiveLayerFeatureStyle = new Style({
+export const inactiveLayerFeatureStyle = new Style({
   stroke: new Stroke({
     color: "gray",
     width: 1,
@@ -133,6 +133,14 @@ export function removeVectorLayer(id: string) {
   }
 }
 
+export function renameLayer(id: string, newName: string) {
+  console.log(newName);
+  if (vectorLayers[id]) {
+    vectorLayers[id].set('name', newName);
+
+  }
+}
+
 // Function to set the active layer by its unique ID
 export function setActiveLayer(id: string) {
   if (vectorLayers[id]) {
@@ -142,6 +150,11 @@ export function setActiveLayer(id: string) {
     }
 
     activeLayerId = id;
+    const activeLayer = vectorLayers[id];
+
+    // Remove the active layer from the map and re-add it to bring it to the top
+    map.removeLayer(activeLayer);
+    map.addLayer(activeLayer);
 
     // Update the style of features in all layers
     Object.keys(vectorLayers).forEach((layerId) => {
@@ -161,7 +174,7 @@ export function setActiveLayer(id: string) {
     });
 
     // Ensure the active layer is visible when selected
-    vectorLayers[activeLayerId].setVisible(true);
+    activeLayer.setVisible(true);
 
     console.log(`Active layer set to: ${id}`);
   } else {
@@ -297,21 +310,9 @@ function addRightClickListener(map: OLMap) {
 
 // Initializes the map
 export function initializeMap(target: HTMLElement) {
-  const marker = new Feature({
-    geometry: new Point(fromLonLat([0, 0])),
-  });
-
-  marker.setStyle(
-    new Style({
-      image: new Icon({
-        src: "https://openlayers.org/en/v6.5.0/examples/data/icon.png",
-      }),
-    })
-  );
-
   const markerLayer = new VectorLayer({
     source: new VectorSource({
-      features: [marker],
+      features: [],
     }),
   });
 
@@ -340,10 +341,83 @@ export function initializeMap(target: HTMLElement) {
     ) as DoubleClickZoom;
 
   // Create a default layer named "Layer 1"
-  createVectorLayer("Layer 1");
 
   enableFeatureSelection();
   addRightClickListener(map);
+  createRotationButtons(target, map);
+}
+
+function createRotationButtons(target: HTMLElement, map: OLMap) {
+  // Create the rotate left button
+  const rotateLeftButton = document.createElement("button");
+  rotateLeftButton.innerText = "Rotate Left";
+  rotateLeftButton.id = "rotate-left";
+  // Apply styles to the rotate left button
+  rotateLeftButton.style.position = "absolute";
+  rotateLeftButton.style.top = "0";
+  rotateLeftButton.style.left = "10px"; // Adjust left position as needed
+  rotateLeftButton.style.zIndex = "5";
+  target.appendChild(rotateLeftButton);
+
+  // Create the rotate right button
+  const rotateRightButton = document.createElement("button");
+  rotateRightButton.innerText = "Rotate Right";
+  rotateRightButton.id = "rotate-right";
+  // Apply styles to the rotate right button
+  rotateRightButton.style.position = "absolute";
+  rotateRightButton.style.top = "0";
+  rotateRightButton.style.left = "100px"; // Adjust left position as needed
+  rotateRightButton.style.zIndex = "5";
+  target.appendChild(rotateRightButton);
+
+  // Set up event listeners for rotation
+  setupRotationButtons(map, rotateLeftButton, rotateRightButton);
+}
+
+function setupRotationButtons(
+  map: OLMap,
+  rotateLeftButton: HTMLButtonElement,
+  rotateRightButton: HTMLButtonElement
+) {
+  const rotationSpeed = 0.1; // Adjust rotation speed here
+  let rotationInterval: number | undefined;
+
+  function startRotation(direction: "left" | "right") {
+    stopRotation(); // Stop any existing rotation
+
+    rotationInterval = window.setInterval(() => {
+      const view = map.getView();
+      const currentRotation = view.getRotation() || 0;
+      const newRotation =
+        direction === "left"
+          ? currentRotation - rotationSpeed
+          : currentRotation + rotationSpeed;
+      view.setRotation(newRotation);
+    }, 50); // Rotate every 50 milliseconds for smoother rotation
+  }
+
+  function stopRotation() {
+    if (rotationInterval) {
+      clearInterval(rotationInterval);
+      rotationInterval = undefined;
+    }
+  }
+
+  // Attach event listeners to the left rotation button
+  rotateLeftButton.addEventListener("mousedown", () => startRotation("left"));
+  rotateLeftButton.addEventListener("mouseup", stopRotation);
+  rotateLeftButton.addEventListener("mouseleave", stopRotation);
+  rotateLeftButton.addEventListener("touchstart", () => startRotation("left"));
+  rotateLeftButton.addEventListener("touchend", stopRotation);
+
+  // Attach event listeners to the right rotation button
+  rotateRightButton.addEventListener("mousedown", () => startRotation("right"));
+  rotateRightButton.addEventListener("mouseup", stopRotation);
+  rotateRightButton.addEventListener("mouseleave", stopRotation);
+  rotateRightButton.addEventListener("touchstart", () =>
+    startRotation("right")
+  );
+  rotateRightButton.addEventListener("touchend", stopRotation);
 }
 
 // Change the map's tile layer
@@ -402,7 +476,7 @@ export function enableDrawing(
 
     // TODO: Add height
     // feature.set("height", 1);
-    feature.set("block", 'diamond_block');
+    feature.set("block", "diamond_block");
 
     console.log(`${type} drawn with elevation 0:`, feature.getGeometry());
 
@@ -459,6 +533,22 @@ function enableFeatureSelection() {
   });
 
   const selectedFeatures = selectInteraction.getFeatures();
+
+  selectInteraction.on("select", (event) => {
+    const selectedFeatures = event.selected;
+
+    selectedFeatures.forEach((feature: Feature) => {
+      // console.log(feature.getId());
+      console.log(vectorLayers);
+
+      const layer = vectorLayers[activeLayerId!];
+      const source = layer.getSource();
+      if (source && source.hasFeature(feature)) {
+      } else {
+        selectInteraction!.getFeatures().remove(feature);
+      }
+    });
+  });
 
   selectedFeatures.on("add", () => {
     selectionChangeCallback(selectedFeatures);
@@ -595,7 +685,7 @@ export function deleteSelectedFeatures() {
   if (map && selectInteraction) {
     const selectedFeatures = selectInteraction.getFeatures();
 
-    selectedFeatures.forEach((feature) => {
+    selectedFeatures.forEach((feature: Feature) => {
       Object.keys(vectorLayers).forEach((id) => {
         const layer = vectorLayers[id];
         const source = layer.getSource();
@@ -610,7 +700,6 @@ export function deleteSelectedFeatures() {
 }
 
 // Function to move the map to a specified latitude and longitude
-// Function to move the map to a specified latitude and longitude instantly
 export function moveToLocation(
   lat: number,
   lng: number,
@@ -632,11 +721,13 @@ let copiedFeatures: Feature[] = [];
  * Copies the currently selected features to a temporary storage.
  */
 export function copySelectedFeatures() {
-    const selectInteraction = getSelectInteraction();
-    if (!selectInteraction) return;
+  const selectInteraction = getSelectInteraction();
+  if (!selectInteraction) return;
 
-    const selectedFeatures = selectInteraction.getFeatures();
-    copiedFeatures = selectedFeatures.getArray().map((feature) => feature.clone());
+  const selectedFeatures = selectInteraction.getFeatures();
+  copiedFeatures = selectedFeatures
+    .getArray()
+    .map((feature) => feature.clone());
 }
 
 /**
@@ -644,33 +735,38 @@ export function copySelectedFeatures() {
  * The copied features are not cleared after pasting, allowing multiple pastes.
  */
 export function pasteCopiedFeatures() {
-    if (copiedFeatures.length === 0) return;
+  if (copiedFeatures.length === 0) return;
 
-    const activeLayer = getActiveLayer();
-    if (!activeLayer) return;
+  const activeLayer = getActiveLayer();
+  if (!activeLayer) return;
 
-    const vectorSource = activeLayer.getSource();
-    if (!vectorSource) return;
+  const vectorSource = activeLayer.getSource();
+  if (!vectorSource) return;
 
-    const map = getMap();
-    if (!map) return;
+  const map = getMap();
+  if (!map) return;
 
-    // Get the center of the current map view
-    const view = map.getView();
-    const center = view.getCenter();
-    if (!center) return;
+  // Get the center of the current map view
+  const view = map.getView();
+  const center = view.getCenter();
+  if (!center) return;
 
-    // Determine the centroid of the copied features
-    const centroid = copiedFeatures[0].getGeometry()?.getInteriorPoint().getCoordinates();
+  // Determine the centroid of the copied features
+  const centroid = copiedFeatures[0]
+    .getGeometry()
+    ?.getInteriorPoint()
+    .getCoordinates();
 
-    // Translate and paste each feature so that its centroid matches the center of the map view
-    copiedFeatures.forEach((feature) => {
-        const geometry = feature.getGeometry();
-        if (geometry && centroid) {
-            const deltaX = center[0] - centroid[0];
-            const deltaY = center[1] - centroid[1];
-            geometry.translate(deltaX, deltaY);
-        }
-        vectorSource.addFeature(feature.clone());
-    });
+  // Translate and paste each feature so that its centroid matches the center of the map view
+  copiedFeatures.forEach((feature) => {
+    const geometry = feature.getGeometry();
+    if (geometry && centroid) {
+      const deltaX = center[0] - centroid[0];
+      const deltaY = center[1] - centroid[1];
+      geometry.translate(deltaX, deltaY);
+    }
+    vectorSource.addFeature(feature.clone());
+  });
 }
+
+

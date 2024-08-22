@@ -14,8 +14,8 @@
 </script>
 
 <div class="polygon-creator">
-	<span style="color: white;">work in progress</span>
-	<!-- <div class="btn-container">
+	<!-- <span style="color: white;">work in progress</span> -->
+	<div class="btn-container">
 		<WindowButton 
         onClick={handlePaste} 
         iconClass="fas fa-paste" 
@@ -34,8 +34,8 @@
     />
 	</div>
 	<div class="latlng-list">
-		<div class="latlng">1.2343w5235, 103.345354</div>
-	</div> -->
+		<!-- <div class="latlng">1.2343w5235, 103.345354</div> -->
+	</div>
 </div>
 
 <style lang="scss">
