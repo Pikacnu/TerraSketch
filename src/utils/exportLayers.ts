@@ -3,6 +3,7 @@ import { fromGeo } from "./terraconvert/terraconvert";
 import pako from "pako";
 import { writeUncompressed, type NBT, TagType } from "prismarine-nbt";
 import type { FeatureExport } from "./iFeatureExprt";
+
 /**
  * Transforms coordinates from one spatial reference system to another.
  * @param flatCoords - Flat array of coordinates.
@@ -77,7 +78,7 @@ type BlockID = number;
 
 export function createSchematic(
   features: FeatureExport[],
-  fillPolygon: boolean = false
+  versionNo: number,
 ): void {
   const xCoordinates = features.flatMap((feature) =>
     feature.coords.map((coord) => coord[0])
@@ -140,8 +141,6 @@ export function createSchematic(
 
   // Adds in elevation to coordinate array based on feature type
 
-  
-
   for (const feature of transformedFeatures) {
     const featureXYZ = feature.coords.map((innerList, index, array) => {
       const increment =
@@ -155,8 +154,8 @@ export function createSchematic(
       ];
     });
 
-    if(feature.shape == 'Circle') {
-        console.log(featureXYZ);
+    if (feature.shape == "Circle") {
+      console.log(featureXYZ);
     }
 
     for (let i = 0; i < featureXYZ.length - 1; i++) {
@@ -188,7 +187,7 @@ export function createSchematic(
     name: "Schematic",
     value: {
       DataVersion: { type: TagType.Int, value: 3700 },
-      Version: { type: TagType.Int, value: 2 },
+      Version: { type: TagType.Int, value: versionNo },
       Width: { type: TagType.Short, value: length + 1 },
       Height: { type: TagType.Short, value: height + 1 + spaceCount },
       Length: { type: TagType.Short, value: width + 1 },
@@ -211,22 +210,53 @@ export function createSchematic(
     },
   };
 
-    // Write the NBT data to a Buffer
-    const nbtBuffer = writeUncompressed(schematic);
+  // Write the NBT data to a Buffer
+  const nbtBuffer = writeUncompressed(schematic);
 
-    // Compress the NBT data using pako
-    const compressed = pako.gzip(nbtBuffer);
+  // Compress the NBT data using pako
+  const compressed = pako.gzip(nbtBuffer);
 
-    // Create a Blob from the compressed data
-    const blob = new Blob([compressed], { type: "application/octet-stream" });
+  // Create a Blob from the compressed data
+  const blob = new Blob([compressed], { type: "application/octet-stream" });
 
-    // Create a link to download the Blob as a .schem file
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "testing.schem";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Create a link to download the Blob as a .schem file
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "testing.schem";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export function getDimensions(features: FeatureExport[]) {
+  const xCoordinates = features.flatMap((feature) =>
+    feature.coords.map((coord) => coord[0])
+  );
+  const zCoordinates = features.flatMap((feature) =>
+    feature.coords.map((coord) => coord[1])
+  );
+
+  // Find the minimum and maximum X values
+  const minX = Math.min(...xCoordinates);
+  const maxX = Math.max(...xCoordinates);
+  const minZ = Math.min(...zCoordinates);
+  const maxZ = Math.max(...zCoordinates);
+
+  // Extract all elevation values (both start and end)
+  const elevations = features.flatMap((feature) => [
+    feature.elevationStart,
+    feature.elevationEnd,
+  ]);
+
+  // Calculate the minimum and maximum elevation values
+  const minY = Math.min(...elevations);
+  const maxY = Math.max(...elevations);
+
+  const length = maxX - minX;
+  const width = maxZ - minZ;
+  const height = maxY - minY;
+
+  return {length, height, width};
 }
 
 function Bresenham3D(
@@ -323,4 +353,51 @@ function Bresenham3D(
   }
 
   return ListOfPoints;
+}
+
+export async function saveGeoJsonFile(jsonString: string) {
+  // Parse the JSON string
+  const jsonObject = JSON.parse(jsonString);
+
+  // Convert the JSON object to a Blob
+  const blob = new Blob([JSON.stringify(jsonObject, null, 2)], { type: 'application/geo+json' });
+
+  // Check if the File System Access API is available
+  if ('showSaveFilePicker' in window) {
+      try {
+          // Open the file save dialog and let the user choose a file name and location
+          const fileHandle = await (window as any).showSaveFilePicker({
+              suggestedName: 'file.geojson',
+              types: [
+                  {
+                      description: 'GeoJSON Files',
+                      accept: {
+                          'application/geo+json': ['.geojson'],
+                      },
+                  },
+              ],
+          });
+
+          // Create a writable stream
+          const writableStream = await fileHandle.createWritable();
+
+          // Write the Blob to the file
+          await writableStream.write(blob);
+
+          // Close the file stream
+          await writableStream.close();
+
+          console.log('File saved successfully!');
+      } catch (err) {
+          console.error('File save failed:', err);
+      }
+  } else {
+      // Fallback: Use the traditional download method if File System Access API is not supported
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'file.geojson'; // Fallback file name
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  }
 }

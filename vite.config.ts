@@ -12,9 +12,6 @@ export default defineConfig(({ command, mode }) => {
     build: {
       rollupOptions: {
         treeshake: false,
-        // output: {
-        //   preserveModules: true
-        // }
       }
     }
   };

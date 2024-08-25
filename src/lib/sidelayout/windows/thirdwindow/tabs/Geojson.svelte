@@ -1,3 +1,0 @@
-<div>
-    geojson preview
-</div>

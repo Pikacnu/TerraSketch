@@ -19,6 +19,8 @@
   import {
     createSchematic,
     generateCircleVertices,
+    getDimensions,
+    saveGeoJsonFile,
     transformToLatLng,
   } from "../../../../../utils/exportLayers";
   import LineString from "ol/geom/LineString";
@@ -28,6 +30,8 @@
     deleteVectorLayerById,
     retrieveAllVectorLayers,
   } from "../../../../../utils/saveLayers";
+  import Modal from "$lib/common/Modal.svelte";
+  import GeoJSON from "ol/format/GeoJSON";
 
   interface Layer {
     id: string; // Unique ID
@@ -39,6 +43,12 @@
   let newLayerName: string = "";
   let selectedLayerId: string | null = null;
   let fileInput: HTMLInputElement;
+
+  let showModal = false;
+
+  function toggleModal() {
+    showModal = !showModal;
+  }
 
   onMount(() => {
     retrieveAllVectorLayers()
@@ -161,7 +171,23 @@
     input.value = "";
   }
 
-  function handleExport() {
+  function downloadGeojson() {
+    if (selectedLayerId) {
+      const features = getFeaturesOfSelectedLayer(selectedLayerId);
+      const geojsonFormat = new GeoJSON();
+      const geojson = geojsonFormat.writeFeatures(features!, {
+        featureProjection: "EPSG:3857",
+        dataProjection: "EPSG:4326",
+      });
+
+      saveGeoJsonFile(geojson);
+      
+    } else {
+      console.log("No layer selected.");
+    }
+  }
+
+  function convertAndGetDimensions() {
     if (selectedLayerId) {
       const features = getFeaturesOfSelectedLayer(selectedLayerId);
 
@@ -231,7 +257,10 @@
         });
       }
 
-      createSchematic(newFinalList);
+      const dimensions = getDimensions(newFinalList);
+
+      exportSize = `length: ${dimensions.length + 1} height: ${dimensions.height + 1} width: ${dimensions.width + 1}`;
+      schematicFeatureList = newFinalList;
     } else {
       console.log("No layer selected.");
     }
@@ -276,7 +305,20 @@
 
   function handleBlur(id: string) {
     renameLayer(id, inputValue);
-    // console.log("User clicked away. Input value:", inputValue);
+  }
+
+  let selectedOption: string = "Schematic";
+  let selectedVersion: string = "2";
+  let exportSize: string = "";
+  let schematicFeatureList: FeatureExport[] = [];
+
+  // Function to select an option
+  function selectOption(option: any) {
+    selectedOption = option;
+  }
+
+  function handleVersionChange(event: any) {
+    selectedVersion = event.target.value;
   }
 </script>
 
@@ -290,7 +332,10 @@
       flexGrow={true}
     />
     <WindowButton
-      onClick={handleExport}
+      onClick={() => {
+        toggleModal();
+        convertAndGetDimensions();
+      }}
       iconClass="fas fa-upload"
       label="Export"
       width="auto"
@@ -337,6 +382,62 @@
   </div>
 </div>
 
+<Modal title="Export" show={showModal} on:close={toggleModal}>
+  <div class="export-row">
+    <div
+      class="option {selectedOption === 'Schematic' ? 'selected' : ''}"
+      on:click={() => selectOption("Schematic")}
+    >
+      Schematic
+    </div>
+    <div
+      class="option {selectedOption === 'GeoJSON' ? 'selected' : ''}"
+      on:click={() => selectOption("GeoJSON")}
+    >
+      GeoJSON
+    </div>
+  </div>
+  <div class="export-content">
+    {#if selectedOption === "Schematic"}
+      <div class="info">
+        <label for="version">Version:</label>
+        <select
+          id="version"
+          bind:value={selectedVersion}
+          on:change={handleVersionChange}
+        >
+          <option value="" disabled>Select a version</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      <div class="info">
+        <span>Dimensions: {exportSize ? exportSize : "-"}</span>
+      </div>
+      <button
+        on:click={() => {
+          createSchematic(schematicFeatureList, parseInt(selectedVersion));
+        }}
+        class="export-btn">Export</button
+      >
+    {/if}
+
+    {#if selectedOption === "GeoJSON"}
+      <button
+        on:click={() => {
+          downloadGeojson();
+        }}
+        class="export-btn">Export</button
+      >
+    {/if}
+
+    {#if !selectedOption}
+      <p>Please select an option above to see the content.</p>
+    {/if}
+  </div>
+</Modal>
+
 <style lang="scss">
   .layers-manager {
     width: 100%;
@@ -351,6 +452,7 @@
       justify-content: space-around;
       gap: 8px;
       padding-bottom: 8px;
+      user-select: none;
     }
 
     .list {
@@ -368,13 +470,8 @@
         color: white;
         transition: background 0.3s;
 
-        span {
-          font-size: 0.8rem;
-          font-weight: bold;
-        }
-
         &:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.05);
         }
 
         &.selected {
@@ -450,6 +547,70 @@
           opacity: 0.5;
         }
       }
+    }
+  }
+
+  .export-row {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    .option {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background 0.3s;
+      user-select: none;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      &.selected {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+
+  .export-content {
+    display: flex;
+    flex-direction: column;
+
+    .info {
+      padding: 4px 0px;
+
+      select {
+        font-size: 0.8rem;
+        outline: none;
+        padding: 4px;
+      }
+
+      label,
+      span {
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+      }
+    }
+
+    button {
+      cursor: pointer;
+      padding: 8px 16px;
+      background-color: green;
+      border-top: 3px solid rgba(255, 255, 255, 0.1);
+      border-left: 3px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 3px solid rgba(0, 0, 0, 0.3);
+      border-right: 3px solid rgba(0, 0, 0, 0.3);
+      font-size: 0.6rem;
+      font-weight: bold;
+      color: white;
+      letter-spacing: 2px;
+      text-transform: uppercase;
     }
   }
 </style>
