@@ -32,7 +32,6 @@ const oneMapLayer: TileLayer<XYZ> = new TileLayer({
 const osmLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    // url: 'https://www.google.com/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
     maxZoom: maxZoomOSM,
   }),
 });

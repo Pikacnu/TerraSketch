@@ -27,6 +27,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@bte-germany/terraconvert": "^1.1.2",
 		"@fortawesome/fontawesome-free": "^6.6.0",
 		"geojson": "^0.5.0",
 		"idb": "^8.0.0",

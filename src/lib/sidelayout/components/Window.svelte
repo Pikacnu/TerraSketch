@@ -1,9 +1,6 @@
 <script lang="ts">
-	import ResizeHandleHorizontal from './ResizeHandleHorizontal.svelte';
-
-	export let height: number; // Height of the window
+  import { onMount } from 'svelte';
 	export let index: number; // Index of the window
-	export let onResize: (event: MouseEvent, index: number) => void; // Resize handler function
 
 	// Components to render in tabs
 	export let components: { [key: string]: any }; // A mapping of tab names to components
@@ -16,9 +13,19 @@
 	function selectTab(tabIndex: number) {
 		selectedTab = tabIndex;
 	}
+
+
+	onMount(() => {
+
+		const element = document.getElementById("windowsContainer");
+		const rect = element!.getBoundingClientRect();
+
+		console.log(rect.height);
+	});
+
 </script>
 
-<div class="window" style="height: {height}%; position: relative;">
+<div class="window" style="position: relative;">
 	<div class="tabs">
 		{#each tabNames as tabName, i}
 			<span class:selected={selectedTab === i} on:click={() => selectTab(i)}>
@@ -32,7 +39,7 @@
 		{/if}
 	</div>
 	{#if index < 2}
-		<ResizeHandleHorizontal onMouseDown={(event) => onResize(event, index)} />
+		<!-- <ResizeHandleHorizontal onMouseDown={(event) => onResize(event, index)} /> -->
 	{/if}
 </div>
 
@@ -44,7 +51,7 @@
 		justify-content: center;
 		align-items: center;
 		position: relative;
-
+		height: calc(100%/3);
 		.tabs {
 			width: 100%;
 			height: 32px;
@@ -92,7 +99,7 @@
 
 		.content {
 			width: 100%;
-			height: 100%;
+			height: calc(100% - 32px - 12px);
 			background: rgba(255, 255, 255, 0.05);
 			border: 1px solid rgba(255, 255, 255, 0.1);
 		}

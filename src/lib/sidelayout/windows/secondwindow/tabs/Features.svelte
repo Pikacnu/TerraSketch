@@ -5,25 +5,34 @@
     import Feature from "ol/Feature";
 
     let feature: Feature | null = null;
-    let customProperties = {};
+    let customProperties: { [key: string]: any } = {};
     let previousValues: { [key: string]: any } = {}; // To track previous values
 
     // Subscribe to the selectedFeature store
     const unsubscribe = selectedFeature.subscribe((value) => {
+        // Commit any changes to the current feature before switching
+        if (feature) {
+            commitFeatureChanges();
+        }
+
+        // Now switch to the new feature
         feature = value;
 
+        console.log('Feature selected or updated:', feature);
         if (feature) {
             const properties = feature.getProperties();
             
-            // Filter out the geometry property
+            // Filter out the geometry property and initialize customProperties
             customProperties = Object.fromEntries(
                 Object.entries(properties).filter(([key]) => key !== 'geometry')
             );
 
-            // Store previous values
+            // Store current customProperties in previousValues
             previousValues = { ...customProperties };
         } else {
-            customProperties = {}; // No feature selected
+            // Reset both customProperties and previousValues when no feature is selected
+            customProperties = {};
+            previousValues = {};
         }
     });
 
@@ -32,7 +41,7 @@
         unsubscribe();
     });
 
-    // Helper function to get feature properties
+    // Helper function to get feature type
     function getFeatureType(): string {
         if (feature) {
             return feature.getGeometry()?.getType() || "Unknown";
@@ -40,26 +49,38 @@
         return "No feature selected";
     }
 
+    // Function to commit changes to the current feature before switching
+    function commitFeatureChanges() {
+        if (!feature) return;
+
+        for (const key in customProperties) {
+            if (customProperties[key] !== previousValues[key]) {
+                feature.set(key, customProperties[key]); // Update the feature with the new value
+                previousValues[key] = customProperties[key]; // Update previousValues to reflect the committed change
+            }
+        }
+    }
+
     // Handle input blur event to save the value
     function handleInputBlur(key: string, event: Event) {
         const target = event.target as HTMLTableCellElement;
         const newValue = target.innerText.trim();
-        
+
         if (newValue === "") {
             // Revert to the previous value if the new value is empty
             target.innerText = previousValues[key];
+            customProperties[key] = previousValues[key];
         } else {
-            // Update feature property if the value is valid
+            // Update the customProperties and the feature directly to reflect the new value
+            customProperties[key] = newValue;
             if (feature) {
-                feature.set(key, newValue);
+                feature.set(key, newValue); // Directly update the feature's property
             }
-
-            // Update previous values
-            previousValues[key] = newValue;
+            previousValues[key] = newValue; // Update previousValues to reflect the change
         }
     }
 
-    // Define actions for button clicks
+    // Define actions for button clicks (placeholders)
     const handleLeftClick = () => {
         console.log("Left button clicked");
         // Add functionality for left button
@@ -91,6 +112,7 @@
             minHeight="36px"
         />
     </div>
+   <div class="table-container">
     <table>
         <tr>
             <th>Property</th>
@@ -108,6 +130,7 @@
             </tr>
         {/each}
     </table>
+   </div>
 </div>
 
 <style lang="scss">
@@ -134,20 +157,27 @@
                     letter-spacing: 2px;
                     text-transform: uppercase;
                     font-weight: bold;
-                    font-size: 0.8rem;
+                    font-size: 0.6rem;
                     white-space: pre-wrap; /* Preserve formatting */
                 }
             }
         }
 
+       .table-container {
+        height: 100%;
+        overflow-y: scroll;
+        scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.1);
+        scrollbar-width: thin;
+        
         table {
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
 
             tr {
                 color: white;
                 width: 100%;
-                height: 36px;
+                height: 32px;
 
                 th {
                     background: rgba(255, 255, 255, 0.1);
@@ -162,5 +192,6 @@
                 }
             }
         }
+       }
     }
 </style>

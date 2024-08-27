@@ -1,8 +1,8 @@
 import { transform } from "ol/proj";
-import { fromGeo } from "./terraconvert/terraconvert";
 import pako from "pako";
 import { writeUncompressed, type NBT, TagType } from "prismarine-nbt";
 import type { FeatureExport } from "./iFeatureExprt";
+import { fromGeo } from "@bte-germany/terraconvert";
 
 /**
  * Transforms coordinates from one spatial reference system to another.

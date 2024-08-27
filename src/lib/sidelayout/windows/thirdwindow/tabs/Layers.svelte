@@ -104,15 +104,20 @@
 
   // Function to delete the selected layer
   function deleteLayer() {
-    alert("delete text placeholder");
-    // if (selectedLayerId) {
-    //   deleteVectorLayerById(selectedLayerId).then(() => {
-    //     removeVectorLayer(selectedLayerId!);
-    //     layers = layers.filter((layer) => layer.id !== selectedLayerId);
-    //     console.log(`Deleted layer with ID: ${selectedLayerId}`);
-    //     selectedLayerId = null; // Clear the selection
-    //   });
-    // }
+    if (
+      confirm(
+        "Are you sure you want to delete this layer? This action cannot be reversed!"
+      )
+    ) {
+      if (selectedLayerId) {
+        deleteVectorLayerById(selectedLayerId).then(() => {
+          removeVectorLayer(selectedLayerId!);
+          layers = layers.filter((layer) => layer.id !== selectedLayerId);
+          console.log(`Deleted layer with ID: ${selectedLayerId}`);
+          selectedLayerId = null; // Clear the selection
+        });
+      }
+    }
   }
 
   // Function to select a layer by its unique ID
@@ -181,7 +186,6 @@
       });
 
       saveGeoJsonFile(geojson);
-      
     } else {
       console.log("No layer selected.");
     }
@@ -456,11 +460,13 @@
     }
 
     .list {
-      flex: 1;
       overflow-y: auto;
+      scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.1);
+      scrollbar-width: thin;
+      height: 100%;
 
       .layer-item {
-        padding: 8px;
+        padding: 4px;
         margin-bottom: 4px;
         background: rgba(255, 255, 255, 0.1);
         cursor: pointer;
@@ -475,7 +481,7 @@
         }
 
         &.selected {
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.3);
         }
 
         input[type="checkbox"] {

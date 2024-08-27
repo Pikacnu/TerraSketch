@@ -42,10 +42,10 @@
 <div class="transform-controls">
 	<div class="buttons">
 		<div class="row">
-			<WindowButton onClick={() => rotate(90)} iconClass="fas fa-redo" label="+90°" width="auto" flexGrow={true} />
-			<WindowButton onClick={() => rotate(-90)} iconClass="fas fa-undo" label="-90°" width="auto" flexGrow={true} />
-			<WindowButton onClick={() => rotate(45)} iconClass="fas fa-redo" label="+45°" width="auto" flexGrow={true} />
-			<WindowButton onClick={() => rotate(-45)} iconClass="fas fa-undo" label="-45°" width="auto" flexGrow={true} />
+			<WindowButton onClick={() => rotate(90)} iconClass="fas fa-redo" label="-90°" width="auto" flexGrow={true} />
+			<WindowButton onClick={() => rotate(-90)} iconClass="fas fa-undo" label="+90°" width="auto" flexGrow={true} />
+			<WindowButton onClick={() => rotate(45)} iconClass="fas fa-redo" label="-45°" width="auto" flexGrow={true} />
+			<WindowButton onClick={() => rotate(-45)} iconClass="fas fa-undo" label="+45°" width="auto" flexGrow={true} />
 		</div>
 		<div class="row">
 			<WindowButton onClick={flipVertically} iconClass="fas fa-arrows-alt-v" label="Flip Vertically" width="auto" flexGrow={true} />
@@ -131,6 +131,7 @@
             letter-spacing: 2px;
             font-weight: bold;
             font-size: 0.6rem;
+			user-select: none;
         }
 	}
 </style>

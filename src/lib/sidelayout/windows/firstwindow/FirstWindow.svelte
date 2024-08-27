@@ -14,8 +14,6 @@
 </script>
 
 <Window
-    height={100} 
     index={0} 
-    onResize={onResize} 
     components={components}
 />

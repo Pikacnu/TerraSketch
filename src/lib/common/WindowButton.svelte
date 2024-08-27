@@ -33,6 +33,7 @@
         justify-content: center;
         cursor: pointer;
         transition: background-color 0.3s ease;
+        user-select: none;
 
         i {
             font-size: 0.8rem;

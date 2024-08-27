@@ -86,7 +86,7 @@
         moveToLocation(lat, lng, 12); // Use a default zoom level of 12
         console.log(`Moving to location: lat=${lat}, lng=${lng}`);
       } else {
-        console.error('Invalid coordinates format. Please use "lat, lng" format.');
+        alert('Invalid coordinates format. Please use "lat, lng" format.');
       }
     }
   </script>
@@ -105,7 +105,7 @@
         />
         <Button onClick={moveToCoordinates} iconClass="fas fa-search" label="" width="36px" height="36px" />
       </div>
-      <div class="windows">
+      <div class="windows" id="windowsContainer">
         <FirstWindow onResize={handleMouseDownWindow} />
         <SecondWindow onResize={handleMouseDownWindow} />
         <ThirdWindow onResize={handleMouseDownWindow} />
@@ -142,11 +142,11 @@
       display: flex;
       flex-direction: column;
       flex: 1;
-      padding: 12px 12px 12px 0px;
+      padding: 12px 12px 6px 0px;
   
       .search-container {
         display: flex;
-        margin-bottom: 12px;
+        margin-bottom: 6px;
         width: 100%;
         height: 36px;
   
@@ -166,10 +166,7 @@
       }
   
       .windows {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        gap: 12px;
+        height: calc(100% - 36px);
       }
     }
   </style>

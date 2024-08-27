@@ -5,7 +5,7 @@ import VectorSource from "ol/source/Vector";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import { Icon, Style, Fill, Stroke } from "ol/style";
-import { fromLonLat, toLonLat } from "ol/proj";
+import { fromLonLat, toLonLat, transform } from "ol/proj";
 import Draw, { createBox } from "ol/interaction/Draw";
 import Select from "ol/interaction/Select";
 import Translate from "ol/interaction/Translate";
@@ -14,11 +14,12 @@ import { click } from "ol/events/condition";
 import Collection from "ol/Collection";
 import { defaults as defaultControls } from "ol/control";
 import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
+import { defaults as defaultInteractions, DragRotate } from "ol/interaction";
 import { MapTileLayer, mapTileLayers } from "./mapTileUtils";
 import { GeoJSON } from "ol/format"; // Import GeoJSON format for handling GeoJSON data
-
-import { fromGeo } from "./terraconvert/terraconvert";
 import { writable } from "svelte/store";
+import { fromGeo } from "@bte-germany/terraconvert";
+import { Polygon } from "ol/geom";
 
 // Create a Svelte store to keep track of the selected feature type
 export const selectedFeature = writable<Feature | null>(null);
@@ -32,7 +33,7 @@ let doubleClickZoomInteraction: DoubleClickZoom | null = null;
 
 // Manage multiple vector layers using a plain object
 export let vectorLayers: { [key: string]: VectorLayer } = {};
-let activeLayerId: string | null = null;
+export let activeLayerId: string | null = null;
 
 // Define styles for features
 const selectedFeatureStyle = new Style({
@@ -136,8 +137,7 @@ export function removeVectorLayer(id: string) {
 export function renameLayer(id: string, newName: string) {
   console.log(newName);
   if (vectorLayers[id]) {
-    vectorLayers[id].set('name', newName);
-
+    vectorLayers[id].set("name", newName);
   }
 }
 
@@ -331,6 +331,18 @@ export function initializeMap(target: HTMLElement) {
       rotate: false,
       attribution: false,
     }),
+    interactions: defaultInteractions({ shiftDragZoom: false }).extend([
+      new DragRotate({
+        condition: (event) => {
+          const originalEvent = event.originalEvent;
+          return (
+            originalEvent.shiftKey ||
+            originalEvent.metaKey ||
+            originalEvent.ctrlKey
+          );
+        },
+      }),
+    ]),
   });
 
   doubleClickZoomInteraction = map
@@ -344,80 +356,6 @@ export function initializeMap(target: HTMLElement) {
 
   enableFeatureSelection();
   addRightClickListener(map);
-  createRotationButtons(target, map);
-}
-
-function createRotationButtons(target: HTMLElement, map: OLMap) {
-  // Create the rotate left button
-  const rotateLeftButton = document.createElement("button");
-  rotateLeftButton.innerText = "Rotate Left";
-  rotateLeftButton.id = "rotate-left";
-  // Apply styles to the rotate left button
-  rotateLeftButton.style.position = "absolute";
-  rotateLeftButton.style.top = "0";
-  rotateLeftButton.style.left = "10px"; // Adjust left position as needed
-  rotateLeftButton.style.zIndex = "5";
-  target.appendChild(rotateLeftButton);
-
-  // Create the rotate right button
-  const rotateRightButton = document.createElement("button");
-  rotateRightButton.innerText = "Rotate Right";
-  rotateRightButton.id = "rotate-right";
-  // Apply styles to the rotate right button
-  rotateRightButton.style.position = "absolute";
-  rotateRightButton.style.top = "0";
-  rotateRightButton.style.left = "100px"; // Adjust left position as needed
-  rotateRightButton.style.zIndex = "5";
-  target.appendChild(rotateRightButton);
-
-  // Set up event listeners for rotation
-  setupRotationButtons(map, rotateLeftButton, rotateRightButton);
-}
-
-function setupRotationButtons(
-  map: OLMap,
-  rotateLeftButton: HTMLButtonElement,
-  rotateRightButton: HTMLButtonElement
-) {
-  const rotationSpeed = 0.1; // Adjust rotation speed here
-  let rotationInterval: number | undefined;
-
-  function startRotation(direction: "left" | "right") {
-    stopRotation(); // Stop any existing rotation
-
-    rotationInterval = window.setInterval(() => {
-      const view = map.getView();
-      const currentRotation = view.getRotation() || 0;
-      const newRotation =
-        direction === "left"
-          ? currentRotation - rotationSpeed
-          : currentRotation + rotationSpeed;
-      view.setRotation(newRotation);
-    }, 50); // Rotate every 50 milliseconds for smoother rotation
-  }
-
-  function stopRotation() {
-    if (rotationInterval) {
-      clearInterval(rotationInterval);
-      rotationInterval = undefined;
-    }
-  }
-
-  // Attach event listeners to the left rotation button
-  rotateLeftButton.addEventListener("mousedown", () => startRotation("left"));
-  rotateLeftButton.addEventListener("mouseup", stopRotation);
-  rotateLeftButton.addEventListener("mouseleave", stopRotation);
-  rotateLeftButton.addEventListener("touchstart", () => startRotation("left"));
-  rotateLeftButton.addEventListener("touchend", stopRotation);
-
-  // Attach event listeners to the right rotation button
-  rotateRightButton.addEventListener("mousedown", () => startRotation("right"));
-  rotateRightButton.addEventListener("mouseup", stopRotation);
-  rotateRightButton.addEventListener("mouseleave", stopRotation);
-  rotateRightButton.addEventListener("touchstart", () =>
-    startRotation("right")
-  );
-  rotateRightButton.addEventListener("touchend", stopRotation);
 }
 
 // Change the map's tile layer
@@ -752,9 +690,8 @@ export function pasteCopiedFeatures() {
   if (!center) return;
 
   // Determine the centroid of the copied features
-  const centroid = copiedFeatures[0]
-    .getGeometry()
-    ?.getInteriorPoint()
+  const centroid = (copiedFeatures[0].getGeometry() as Polygon)
+    .getInteriorPoint()
     .getCoordinates();
 
   // Translate and paste each feature so that its centroid matches the center of the map view
@@ -769,4 +706,41 @@ export function pasteCopiedFeatures() {
   });
 }
 
+// Function to create a polygon from coordinates and add it to a specified layer
+export function addPolygonToLayer(
+  coordinates: [number, number][],
+  layerId: string
+) {
+  // Find the vector layer by ID
+  const layer = vectorLayers[layerId];
+  if (!layer) {
+    console.error(`Layer with ID '${layerId}' does not exist.`);
+    return;
+  }
 
+  const translatedCoordinates = coordinates.map((coordinate) =>
+    transform(coordinate, "EPSG:4326", "EPSG:3857")
+  );
+
+  // Ensure coordinates are in the correct format for Polygon
+  const polygonCoordinates = [translatedCoordinates];
+
+  // Create a new polygon geometry
+  const polygon = new Polygon(polygonCoordinates);
+
+  // Create a new feature with the polygon geometry
+  const feature = new Feature({
+    geometry: polygon,
+  });
+
+  // Optionally set a unique ID or other properties on the feature
+  feature.setId("feature-" + generateUniqueId());
+
+  // Add the feature to the layer's source
+  const source = layer.getSource() as VectorSource;
+  if (!source) {
+    console.error(`Source for layer '${layerId}' is not found.`);
+    return;
+  }
+  source.addFeature(feature);
+}

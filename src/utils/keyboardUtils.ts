@@ -3,7 +3,7 @@ import { getMap, getSelectInteraction, deleteSelectedFeatures, copySelectedFeatu
 function handleKeyDown(event: KeyboardEvent) {
     // Check if the focused element is inside the table in Features.svelte
     const focusedElement = document.activeElement as HTMLElement;
-    if (focusedElement.closest('table')) {
+    if (focusedElement.closest('table') || focusedElement.closest('input')) {
         // If the focused element is within a table, do not proceed with map-related operations
         return;
     }
