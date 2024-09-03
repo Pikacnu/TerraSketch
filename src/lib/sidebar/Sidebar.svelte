@@ -15,7 +15,7 @@
     import { MapTileLayer } from '../../utils/mapTileUtils'; // Import the enum
 
     let showModal = false;
-    let mapContainer: any;
+    let mapContainer: HTMLElement;
     let featuresSelected = false; // Track if features are selected
     let isMoveMode = true; // Track if the move mode is active
     let isModifyMode = false; // Track if the modify mode is active
