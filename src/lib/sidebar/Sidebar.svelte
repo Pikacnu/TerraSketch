@@ -91,7 +91,7 @@
 <aside class="sidebar">
     <div class="top-buttons">
         {#if !featuresSelected}
-            <Button iconClass="far fa-circle-dot" label="" onClick={drawPoint} />
+            <!-- <Button iconClass="far fa-circle-dot" label="" onClick={drawPoint} /> -->
             <Button iconClass="fas fa-slash" label="" onClick={drawLineString} />
             <Button iconClass="fas fa-draw-polygon" label="" onClick={drawPolygon} />
             <Button iconClass="far fa-square" label="" onClick={drawRectangle} />
