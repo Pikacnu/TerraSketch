@@ -84,7 +84,6 @@
         selectedLayerId = firstId;
       })
       .catch(() => {
-        alert("No layers found. Create a new one.");
       });
   });
 
