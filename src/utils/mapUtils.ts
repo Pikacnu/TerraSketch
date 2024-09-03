@@ -19,6 +19,7 @@ import { GeoJSON } from "ol/format"; // Import GeoJSON format for handling GeoJS
 import { writable } from "svelte/store";
 import { fromGeo } from "@bte-germany/terraconvert";
 import { Polygon } from "ol/geom";
+import type { Extent } from "ol/extent";
 
 // Create a Svelte store to keep track of the selected feature type
 export const selectedFeature = writable<Feature | null>(null);
@@ -192,6 +193,55 @@ export function importGeoJSON(file: File): Promise<void> {
         featureProjection: map.getView().getProjection(),
       });
 
+      // Prompt the user for elevation values
+      const blockInput = prompt(
+        "Enter the default block name used:",
+        "diamond_block"
+      );
+      const elevationStartInput = prompt(
+        "Enter the default starting elevation for lines:",
+        "0"
+      );
+      const elevationEndInput = prompt(
+        "Enter the default ending elevation for lines:",
+        "0"
+      );
+      const elevationInput = prompt(
+        "Enter the default elevation for other shapes:",
+        "0"
+      );
+
+      const block = blockInput !== null ? blockInput : "diamond_block";
+
+      const elevationStart =
+        elevationStartInput !== null ? parseFloat(elevationStartInput) : 0;
+      const elevationEnd =
+        elevationEndInput !== null ? parseFloat(elevationEndInput) : 0;
+      const elevation =
+        elevationInput !== null ? parseFloat(elevationInput) : 0;
+
+      // Loop through each feature and apply the corresponding elevation properties
+      features.forEach((feature: Feature) => {
+        const geometry = feature.getGeometry();
+        const properties = feature.getProperties();
+
+        if (geometry && geometry.getType() === "LineString") {
+          // Apply elevationStart and elevationEnd to LineString geometries if they don't exist
+          if (!properties.hasOwnProperty("elevationStart")) {
+            feature.set("elevationStart", elevationStart);
+          }
+          if (!properties.hasOwnProperty("elevationEnd")) {
+            feature.set("elevationEnd", elevationEnd);
+          }
+        } else {
+          // Apply elevation to other geometries if it doesn't exist
+          if (!properties.hasOwnProperty("elevation")) {
+            feature.set("elevation", elevation);
+          }
+        }
+        feature.set("block", block);
+      });
+
       const uniqueId = generateUniqueId();
       const layerId = `layer-${uniqueId}`;
       const geoJsonLayer = new VectorLayer({
@@ -206,6 +256,11 @@ export function importGeoJSON(file: File): Promise<void> {
 
       vectorLayers[layerId] = geoJsonLayer;
       map.addLayer(geoJsonLayer);
+
+         // Move the map to the center of the features
+         const extent: Extent = geoJsonLayer.getSource()!.getExtent();
+         map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 1000 });
+   
 
       resolve();
     };

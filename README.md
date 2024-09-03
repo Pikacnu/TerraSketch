@@ -8,9 +8,10 @@
 
 ## Setup
 
-1. Run `npm install`.
-2. To run in development mode, run `npm run dev`.
-3. To generate static files, run `npm run build`.
+1. Ensure you are using NodeJS 20+.
+2. Run `npm install`.
+3. To run in development mode, run `npm run dev`.
+4. To generate static files, run `npm run build`.
 
 ## Features
 
@@ -24,6 +25,7 @@
 - Export outlines to either .schem or .geojson.
 - Move the map to lat lng location.
 - Paste coordinates to a list and generate outlines.
+- Right click on map canvas to teleport either by /tpll or /minecraft:tp.
 
 ## Why was it made?
 
