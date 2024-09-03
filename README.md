@@ -1,38 +1,24 @@
-# create-svelte
+# TerraSketch 🗺️⛏️
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+## Create and export outlines for the BuildTheEarth project without Minecraft
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Categorize and save your work outlining with layers.
+- Draw lines, polygons and rectangles.
+- Load map tiles directly from sources such as MapBox, OSM or OneMap. (Right now only OSM or OneMap)
+- Customize properties of outlines such as elevation and block type when importing in game.
+- Transform, rotate and copy easily for similar outlines.
+- Modify outlines faster.
+- Import .geojson files and modify them.
+- Export outlines to either .schem or .geojson.
+- Move the map to lat lng location.
+- Paste coordinates to a list and generate outlines.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Why was it made?
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+TerraSketch was created to semi automate the building process of the Minecraft BuildTheEarth project, by allowing builders to draw outlines that span huge areas. 
 
-## Developing
+This saves a lot of time and allows builders to focus more on detailing their builds than manually referencing map sources to draw the outlines, which can take hours. This also means non minecrafters could also contribute by helping to outline from a top down perspective. 
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+For most countries, copying and pasting latlng coordinates is still needed, while BTE teams that include Singapore, Taiwan or Hong Kong can use their own sourced satellite map tiles to draw on.
