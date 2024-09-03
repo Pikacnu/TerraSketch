@@ -1,18 +1,19 @@
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import adapter from '@sveltejs/adapter-static';
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import adapter from "@sveltejs/adapter-static";
 
 export default {
-	preprocess: vitePreprocess(),
-	kit: {
-		adapter: adapter({
-			prerender: {
-				default: true
-			},
-			pages: 'build',
-			assets: 'build',
-			fallback: undefined,
-			precompress: false,
-			strict: false
-		})
-	}
+  // Compiles TypeScript, SASS to JavaScript, CSS.
+  preprocess: vitePreprocess(),
+  kit: {
+    adapter: adapter({
+      prerender: {
+        default: true,
+      },
+      pages: "build",
+      assets: "build",
+      fallback: "index.html",
+      precompress: false,
+      strict: true,
+    }),
+  },
 };

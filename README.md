@@ -1,6 +1,10 @@
+<div align="center">
+
 # TerraSketch 🗺️⛏️
 
-## Create and export outlines for the BuildTheEarth project without Minecraft
+## Create and export outlines for the BuildTheEarth project
+
+## [**🌍 Start Using TerraSketch Now!**](#) <!-- Replace '#' with the actual demo link -->
 
 ## Features
 
@@ -22,3 +26,24 @@ TerraSketch was created to semi automate the building process of the Minecraft B
 This saves a lot of time and allows builders to focus more on detailing their builds than manually referencing map sources to draw the outlines, which can take hours. This also means non minecrafters could also contribute by helping to outline from a top down perspective. 
 
 For most countries, copying and pasting latlng coordinates is still needed, while BTE teams that include Singapore, Taiwan or Hong Kong can use their own sourced satellite map tiles to draw on.
+
+## Technologies used
+
+### Frontend Frameworks and Libraries
+1. **SvelteKit** - A modern framework for building web applications with Svelte.
+2. **Vite** - A fast build tool and development server for modern web projects.
+3. **TypeScript** - A superset of JavaScript that adds static typing.
+
+### Styling
+1. **Sass** - A CSS preprocessor that adds power and elegance to the basic language.
+2. **Custom design** - All UI designs are custom made.
+
+### Node Modules
+1. **OpenLayers** - A library for displaying map data in web browsers.
+2. **Prismarine-NBT** - A library for parsing and writing NBT (Named Binary Tag) data, for exporting to `.schem` format.
+3. **Pako** - A fast zlib port to JavaScript for compression and decompression.
+4. **GeoJSON** - A format for encoding geographic data structures.
+5. **FortAwesome** - FontAwesome integration for scalable vector icons.
+6. **@bte-germany/terraconvert** - Conversion from latlng to minecraft coordinates
+
+</div>
