@@ -80,11 +80,9 @@
   
     // Function to parse and move to the specified coordinates
     function moveToCoordinates() {
-      console.log('Button clicked');
       const [lat, lng] = searchCoordinates.split(',').map(coord => parseFloat(coord.trim()));
       if (!isNaN(lat) && !isNaN(lng)) {
         moveToLocation(lat, lng, 12); // Use a default zoom level of 12
-        console.log(`Moving to location: lat=${lat}, lng=${lng}`);
       } else {
         alert('Invalid coordinates format. Please use "lat, lng" format.');
       }

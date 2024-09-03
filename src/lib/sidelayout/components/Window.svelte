@@ -16,11 +16,8 @@
 
 
 	onMount(() => {
-
 		const element = document.getElementById("windowsContainer");
 		const rect = element!.getBoundingClientRect();
-
-		console.log(rect.height);
 	});
 
 </script>

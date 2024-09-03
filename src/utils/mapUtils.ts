@@ -106,8 +106,6 @@ export function createVectorLayer(name: string): VectorLayer {
   vectorLayers[layerId] = newVectorLayer;
   map.addLayer(newVectorLayer);
 
-  console.log(`Created layer: ${layerId} with name: ${name}`);
-
   if (!activeLayerId) {
     activeLayerId = layerId;
     setActiveLayer(layerId); // Set the first layer as the active layer and style it
@@ -134,7 +132,6 @@ export function removeVectorLayer(id: string) {
 }
 
 export function renameLayer(id: string, newName: string) {
-  console.log(newName);
   if (vectorLayers[id]) {
     vectorLayers[id].set("name", newName);
   }
@@ -174,10 +171,8 @@ export function setActiveLayer(id: string) {
 
     // Ensure the active layer is visible when selected
     activeLayer.setVisible(true);
-
-    console.log(`Active layer set to: ${id}`);
   } else {
-    console.error(`Layer with id '${id}' does not exist.`);
+    alert(`Layer with id '${id}' does not exist.`);
   }
 }
 
@@ -212,14 +207,11 @@ export function importGeoJSON(file: File): Promise<void> {
       vectorLayers[layerId] = geoJsonLayer;
       map.addLayer(geoJsonLayer);
 
-      console.log(
-        `Imported GeoJSON as new layer: ${layerId} with name: ${file.name}`
-      );
       resolve();
     };
 
     reader.onerror = (error) => {
-      console.error("Error reading GeoJSON file:", error);
+      alert("Error reading GeoJSON file: " + error);
       reject(error);
     };
 
@@ -289,10 +281,9 @@ function addRightClickListener(map: OLMap) {
     navigator.clipboard
       .writeText(coordsText)
       .then(() => {
-        console.log("Coordinates copied to clipboard:", coordsText);
         coordContainer.style.display = "none";
       })
-      .catch((err) => console.error("Error copying to clipboard:", err));
+      .catch((err) => alert("Error copying to clipboard: " + err));
   });
 
   coordButton2.addEventListener("click", () => {
@@ -300,10 +291,9 @@ function addRightClickListener(map: OLMap) {
     navigator.clipboard
       .writeText(coordsText)
       .then(() => {
-        console.log("Coordinates copied to clipboard:", coordsText);
         coordContainer.style.display = "none";
       })
-      .catch((err) => console.error("Error copying to clipboard:", err));
+      .catch((err) => alert("Error copying to clipboard: " + err));
   });
 }
 
@@ -370,7 +360,7 @@ export function changeMapTileLayer(layer: MapTileLayer) {
       layers.push(existingLayer)
     ); // Add remaining layers
   } else {
-    console.error(`Layer with key '${layer}' does not exist.`);
+    alert(`Layer with key '${layer}' does not exist.`);
   }
 }
 
@@ -387,7 +377,7 @@ export function enableDrawing(
 
   const activeLayer = getActiveLayer();
   if (!activeLayer) {
-    console.error("No active layer to draw on.");
+    alert("No active layer to draw on.");
     return;
   }
 
@@ -414,8 +404,6 @@ export function enableDrawing(
     // TODO: Add height
     // feature.set("height", 1);
     feature.set("block", "diamond_block");
-
-    console.log(`${type} drawn with elevation 0:`, feature.getGeometry());
 
     disableDrawing();
     setTimeout(() => {
@@ -475,9 +463,6 @@ function enableFeatureSelection() {
     const selectedFeatures = event.selected;
 
     selectedFeatures.forEach((feature: Feature) => {
-      // console.log(feature.getId());
-      console.log(vectorLayers);
-
       const layer = vectorLayers[activeLayerId!];
       const source = layer.getSource();
       if (source && source.hasFeature(feature)) {
@@ -713,7 +698,7 @@ export function addPolygonToLayer(
   // Find the vector layer by ID
   const layer = vectorLayers[layerId];
   if (!layer) {
-    console.error(`Layer with ID '${layerId}' does not exist.`);
+    alert(`Layer with ID '${layerId}' does not exist.`);
     return;
   }
 
@@ -738,7 +723,7 @@ export function addPolygonToLayer(
   // Add the feature to the layer's source
   const source = layer.getSource() as VectorSource;
   if (!source) {
-    console.error(`Source for layer '${layerId}' is not found.`);
+    alert(`Source for layer '${layerId}' is not found.`);
     return;
   }
   source.addFeature(feature);

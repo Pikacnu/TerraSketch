@@ -5,6 +5,11 @@
 	import SideLayout from '$lib/sidelayout/SideLayout.svelte';
 </script>
 
+<svelte:head>
+	<title>TerraSketch</title>
+</svelte:head>
+
+
 <main>
 	<Sidebar />
 	<Map />

@@ -84,7 +84,7 @@
         selectedLayerId = firstId;
       })
       .catch(() => {
-        console.log("No layers found. Create a new one.");
+        alert("No layers found. Create a new one.");
       });
   });
 
@@ -98,7 +98,6 @@
     setActiveLayer(newLayerId);
     selectedLayerId = newLayerId;
 
-    console.log(`Added and activated layer: ${name} with ID: ${newLayerId}`);
     newLayerName = ""; // Clear the input field
   }
 
@@ -113,7 +112,6 @@
         deleteVectorLayerById(selectedLayerId).then(() => {
           removeVectorLayer(selectedLayerId!);
           layers = layers.filter((layer) => layer.id !== selectedLayerId);
-          console.log(`Deleted layer with ID: ${selectedLayerId}`);
           selectedLayerId = null; // Clear the selection
         });
       }
@@ -125,9 +123,7 @@
     if (selectedLayerId !== layerId) {
       setActiveLayer(layerId);
       selectedLayerId = layerId;
-      console.log(`Selected layer with ID: ${layerId}`);
     } else {
-      console.log(`Layer with ID ${layerId} is already active.`);
     }
   }
 
@@ -141,7 +137,6 @@
       .find((l) => l.get("id") === layer.id) as VectorLayer;
     if (mapLayer) {
       mapLayer.setVisible(layer.visible);
-      console.log(`Toggled visibility for ${layer.name} to ${layer.visible}`);
     }
   }
 
@@ -163,12 +158,8 @@
         setActiveLayer(newLayerId);
         selectedLayerId = newLayerId;
 
-        console.log(
-          "GeoJSON file imported and added as new layer:",
-          newLayerId
-        );
       } catch (error) {
-        console.error("Error importing GeoJSON file:", error);
+        alert("Error importing GeoJSON file: " + error);
       }
     }
 
@@ -187,7 +178,7 @@
 
       saveGeoJsonFile(geojson);
     } else {
-      console.log("No layer selected.");
+      alert("No layer selected.");
     }
   }
 
@@ -266,7 +257,7 @@
       exportSize = `length: ${dimensions.length + 1} height: ${dimensions.height + 1} width: ${dimensions.width + 1}`;
       schematicFeatureList = newFinalList;
     } else {
-      console.log("No layer selected.");
+      alert("No layer selected.");
     }
   }
 

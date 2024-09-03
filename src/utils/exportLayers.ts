@@ -155,6 +155,7 @@ export function createSchematic(
     });
 
     if (feature.shape == "Circle") {
+      // TODO: Support for circles
       console.log(featureXYZ);
     }
 
@@ -387,9 +388,9 @@ export async function saveGeoJsonFile(jsonString: string) {
           // Close the file stream
           await writableStream.close();
 
-          console.log('File saved successfully!');
+          alert('File saved successfully!');
       } catch (err) {
-          console.error('File save failed:', err);
+        alert('File save failed: ' + err);
       }
   } else {
       // Fallback: Use the traditional download method if File System Access API is not supported

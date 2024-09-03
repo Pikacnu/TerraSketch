@@ -4,7 +4,13 @@
 
 ## Create and export outlines for the BuildTheEarth project
 
-## [**🌍 Start Using TerraSketch Now!**](#) <!-- Replace '#' with the actual demo link -->
+## [**🌍 Start Using TerraSketch Now!**](https://app.terrasketch.codestian.com/) 
+
+## Setup
+
+1. Run `npm install`.
+2. To run in development mode, run `npm run dev`.
+3. To generate static files, run `npm run build`.
 
 ## Features
 

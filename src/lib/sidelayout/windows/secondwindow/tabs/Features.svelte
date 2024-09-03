@@ -18,7 +18,6 @@
         // Now switch to the new feature
         feature = value;
 
-        console.log('Feature selected or updated:', feature);
         if (feature) {
             const properties = feature.getProperties();
             
@@ -82,12 +81,10 @@
 
     // Define actions for button clicks (placeholders)
     const handleLeftClick = () => {
-        console.log("Left button clicked");
         // Add functionality for left button
     };
 
     const handleRightClick = () => {
-        console.log("Right button clicked");
         // Add functionality for right button
     };
 </script>

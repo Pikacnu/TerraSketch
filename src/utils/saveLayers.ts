@@ -74,8 +74,6 @@ async function storeVectorLayer(
       geojson: geojson,
     };
 
-    console.log(geojson);
-
     const request = store.put(data);
 
     request.onsuccess = () => {
