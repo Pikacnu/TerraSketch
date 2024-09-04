@@ -13,18 +13,58 @@ import type { TileCoord } from 'ol/tilecoord';
 export enum MapTileLayer {
   Blank = 'blank',
   OSM = 'osm',
-  OneMap = 'oneMap',
+  SgOneMap = 'sgonemap',
+  HkGeoData = 'hkgeodata',
+  TwNlsc = 'twnlsc',
+  TwTpeUdd = 'twtpeudd',
+  JpGsi = "jpgsi",
+  KrNaver = "krnaver",
 }
 
 // Define the maximum zoom levels
-const maxZoomOneMap = 19;
+const maxZoom = 19;
 const maxZoomOSM = 18;
 
 // Create the OneMap tile layer
-const oneMapLayer: TileLayer<XYZ> = new TileLayer({
+const SingaporeOneMapLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'https://www.onemap.gov.sg/maps/tiles/Satellite/{z}/{x}/{y}.png',
-    maxZoom: maxZoomOneMap,
+    maxZoom: maxZoom,
+  }),
+});
+
+const HongKongGeoDataLayer: TileLayer<XYZ> = new TileLayer({
+  source: new XYZ({
+    url: 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/WGS84/{z}/{x}/{y}.png',
+    maxZoom: maxZoom,
+  }),
+});
+
+const TaiwanNlscLayer: TileLayer<XYZ> = new TileLayer({
+  source: new XYZ({
+    url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}.png',
+    maxZoom: maxZoom,
+  }),
+});
+
+const TaiwanTaipeiUddLayer: TileLayer<XYZ> = new TileLayer({
+  source: new XYZ({
+    url: 'https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2023/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2023/default/default028mm/{z}/{y}/{x}.png',
+    maxZoom: maxZoom,
+  }),
+});
+
+const JapanGsiLayer: TileLayer<XYZ> = new TileLayer({
+  source: new XYZ({
+    url: 'http://maps.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
+    maxZoom: maxZoom,
+  }),
+});
+
+const KoreaNaverLayer: TileLayer<XYZ> = new TileLayer({
+  source: new XYZ({
+    url: 'https://map.pstatic.net/nrb/styles/satellite/{z}/{x}/{y}.png',
+    maxZoom: maxZoom,
   }),
 });
 
@@ -95,5 +135,10 @@ const blankLayer: TileLayer<XYZ> = new TileLayer({
 export const mapTileLayers: Record<MapTileLayer, TileLayer<XYZ>> = {
   [MapTileLayer.Blank]: blankLayer,
   [MapTileLayer.OSM]: osmLayer,
-  [MapTileLayer.OneMap]: oneMapLayer,
+  [MapTileLayer.SgOneMap]: SingaporeOneMapLayer,
+  [MapTileLayer.HkGeoData]: HongKongGeoDataLayer,
+  [MapTileLayer.TwNlsc]: TaiwanNlscLayer,
+  [MapTileLayer.TwTpeUdd]: TaiwanTaipeiUddLayer,
+  [MapTileLayer.JpGsi]: JapanGsiLayer,
+  [MapTileLayer.KrNaver]: KoreaNaverLayer,
 };

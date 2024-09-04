@@ -82,7 +82,7 @@
     function moveToCoordinates() {
       const [lat, lng] = searchCoordinates.split(',').map(coord => parseFloat(coord.trim()));
       if (!isNaN(lat) && !isNaN(lng)) {
-        moveToLocation(lat, lng, 12); // Use a default zoom level of 12
+        moveToLocation(lat, lng, 16); // Use a default zoom level of 12
       } else {
         alert('Invalid coordinates format. Please use "lat, lng" format.');
       }

@@ -27,6 +27,16 @@
 - Paste coordinates to a list and generate outlines.
 - Right click on map canvas to teleport either by /tpll or /minecraft:tp.
 
+### Supported map tiles
+
+The following regions support loading satellite map tiles onto TerraSketch. You can directly trace the outlines over. For other regions, use Polygon Creator alongside Google Maps. 
+
+ - Singapore 
+ - Hong Kong
+ - Taiwan + Taipei
+ - Japan
+ - Korea
+
 ## Why was it made?
 
 TerraSketch was created to semi automate the building process of the Minecraft BuildTheEarth project, by allowing builders to draw outlines that span huge areas. 

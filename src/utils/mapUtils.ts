@@ -35,6 +35,8 @@ let doubleClickZoomInteraction: DoubleClickZoom | null = null;
 export let vectorLayers: { [key: string]: VectorLayer } = {};
 export let activeLayerId: string | null = null;
 
+export const attributionText = writable("TerraSketch");
+
 // Define styles for features
 const selectedFeatureStyle = new Style({
   stroke: new Stroke({
@@ -319,7 +321,7 @@ function addRightClickListener(map: OLMap) {
     const [lon, lat] = toLonLat(coordinate);
 
     // Set text for the first button
-    coordButton1.innerText = `/tpll ${lat.toFixed(5)}, ${lon.toFixed(5)} y`;
+    coordButton1.innerText = `/tpll ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
 
     const minecraftCoords = fromGeo(lat, lon);
 
@@ -396,11 +398,34 @@ export function initializeMap(target: HTMLElement) {
       (interaction) => interaction instanceof DoubleClickZoom
     ) as DoubleClickZoom;
 
-  // Create a default layer named "Layer 1"
+  // Initialize the coordinates display
+  updateMapCenterCoordinates();
 
+  // Update coordinates when the map view changes
+  map.getView().on('change:center', updateMapCenterCoordinates);
+  map.getView().on('change:resolution', updateMapCenterCoordinates);
+
+  // Create a default layer named "Layer 1"
   enableFeatureSelection();
   addRightClickListener(map);
 }
+
+function updateMapCenterCoordinates() {
+  const view = map.getView();
+  const center = view.getCenter();
+  if (center) {
+    const [lon, lat] = toLonLat(center); // Convert from map projection to latitude and longitude
+    updateCenterCoordinatesDisplay(lat, lon);
+  }
+}
+
+function updateCenterCoordinatesDisplay(lat: number, lon: number) {
+  const coordinatesDiv = document.getElementById('coordinates');
+  if (coordinatesDiv) {
+    coordinatesDiv.textContent = `Latitude: ${lat.toFixed(5)}, Longitude: ${lon.toFixed(5)}`;
+  }
+}
+
 
 // Change the map's tile layer
 export function changeMapTileLayer(layer: MapTileLayer) {
@@ -680,7 +705,7 @@ export function deleteSelectedFeatures() {
 export function moveToLocation(
   lat: number,
   lng: number,
-  zoomLevel: number = 12
+  zoomLevel: number = 15
 ): void {
   if (!map) {
     console.error("Map is not initialized.");
