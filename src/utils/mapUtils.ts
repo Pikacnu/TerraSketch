@@ -369,7 +369,7 @@ export function initializeMap(target: HTMLElement) {
       markerLayer,
     ],
     view: new View({
-      center: fromLonLat([103.92988054990073, 1.3496800292207813]),
+      center: fromLonLat([0, 0]),
       zoom: 17,
     }),
     controls: defaultControls({
