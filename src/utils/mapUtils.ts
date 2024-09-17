@@ -4,7 +4,14 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import Feature from "ol/Feature";
 import { Style, Fill, Stroke } from "ol/style";
-import { fromLonLat, toLonLat, transform } from "ol/proj";
+import {
+  fromLonLat,
+  toLonLat,
+  transform,
+  get as getProjection,
+  type ProjectionLike,
+  transformExtent,
+} from "ol/proj";
 import Draw, { createBox } from "ol/interaction/Draw";
 import Select from "ol/interaction/Select";
 import Translate from "ol/interaction/Translate";
@@ -20,6 +27,10 @@ import { writable } from "svelte/store";
 import { fromGeo } from "@bte-germany/terraconvert";
 import { Polygon } from "ol/geom";
 import type { Extent } from "ol/extent";
+import GeoImage from "ol-ext/layer/GeoImage";
+import GeoImageSource from "ol-ext/source/GeoImage";
+import ImageLayer from "ol/layer/Image";
+import ImageStatic from "ol/source/ImageStatic";
 
 // Create a Svelte store to keep track of the selected feature type
 export const selectedFeature = writable<Feature | null>(null);
@@ -259,10 +270,9 @@ export function importGeoJSON(file: File): Promise<void> {
       vectorLayers[layerId] = geoJsonLayer;
       map.addLayer(geoJsonLayer);
 
-         // Move the map to the center of the features
-         const extent: Extent = geoJsonLayer.getSource()!.getExtent();
-         map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 1000 });
-   
+      // Move the map to the center of the features
+      const extent: Extent = geoJsonLayer.getSource()!.getExtent();
+      map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 1000 });
 
       resolve();
     };
@@ -356,17 +366,10 @@ function addRightClickListener(map: OLMap) {
 
 // Initializes the map
 export function initializeMap(target: HTMLElement) {
-  const markerLayer = new VectorLayer({
-    source: new VectorSource({
-      features: [],
-    }),
-  });
-
   map = new OLMap({
     target: target,
     layers: [
       mapTileLayers.blank, // Default base layer
-      markerLayer,
     ],
     view: new View({
       center: fromLonLat([0, 0]),
@@ -402,12 +405,27 @@ export function initializeMap(target: HTMLElement) {
   updateMapCenterCoordinates();
 
   // Update coordinates when the map view changes
-  map.getView().on('change:center', updateMapCenterCoordinates);
-  map.getView().on('change:resolution', updateMapCenterCoordinates);
+  map.getView().on("change:center", updateMapCenterCoordinates);
+  map.getView().on("change:resolution", updateMapCenterCoordinates);
 
-  // Create a default layer named "Layer 1"
   enableFeatureSelection();
   addRightClickListener(map);
+
+  // // Define the extent of the image in map coordinates (in this case, EPSG:3857)
+  // const imageExtent: Extent = [0, 0, 1024, 968]; // Define your image extent here
+
+  // // Create an ImageStatic source to load the image
+  // const imageSource = new ImageStatic({
+  //   url: "https://cdn.britannica.com/34/235834-050-C5843610/two-different-breeds-of-cats-side-by-side-outdoors-in-the-garden.jpg", // Image URL
+  //   imageExtent: imageExtent,
+  // });
+
+  // // Create an ImageLayer using the ImageStatic source
+  // const imageLayer = new ImageLayer({
+  //   source: imageSource,
+  // });
+
+  // map.addLayer(imageLayer);
 }
 
 function updateMapCenterCoordinates() {
@@ -420,12 +438,11 @@ function updateMapCenterCoordinates() {
 }
 
 function updateCenterCoordinatesDisplay(lat: number, lon: number) {
-  const coordinatesDiv = document.getElementById('coordinates');
+  const coordinatesDiv = document.getElementById("coordinates");
   if (coordinatesDiv) {
     coordinatesDiv.textContent = `Latitude: ${lat.toFixed(5)}, Longitude: ${lon.toFixed(5)}`;
   }
 }
-
 
 // Change the map's tile layer
 export function changeMapTileLayer(layer: MapTileLayer) {
