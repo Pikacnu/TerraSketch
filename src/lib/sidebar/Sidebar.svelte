@@ -104,6 +104,19 @@
     moveToLocation(37.53071864244086, 127.001106171178, 16);
     attributionText.set("Korea Naver Maps");
   }
+  
+  function changeToTWTopo() {
+    changeMapTileLayer(MapTileLayer.TwTopo);
+    moveToLocation(25.043068726118506, 121.51940799136668, 16);
+    attributionText.set("Taiwan Topo");
+  }
+
+  
+  function changeToTWLider() {
+    changeMapTileLayer(MapTileLayer.TwNlsc);
+    moveToLocation(25.043068726118506, 121.51940799136668, 16);
+    attributionText.set("Taiwan Lidar");
+  }
 
   function changeToBlank() {
     changeMapTileLayer(MapTileLayer.Blank);
@@ -176,6 +189,8 @@
     <button class="settings-tile" on:click={changeToTaiwanTaipeiUdd}
       >Taiwan (Taipei)</button
     >
+    <button class="settings-tile" on:click={changeToTWTopo}>Taiwan<br/>(Topo)(Bugged)</button>
+    <button class="settings-tile" on:click={changeToTWLider}>Taiwan<br/>(Lidar)</button>
     <button class="settings-tile" on:click={changeToJapanGsi}>Japan</button>
     <button class="settings-tile" on:click={changeToKoreaNaver}>Korea</button>
   </div>
