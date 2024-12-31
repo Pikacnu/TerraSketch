@@ -11,16 +11,21 @@
     initializeMap,
     moveToLocation,
     attributionText,
+    map,
   } from "../../utils/mapUtils"; // Adjust path to the utils file
 
   import { changeMapTileLayer } from "../../utils/mapUtils"; // Import the function
   import { MapTileLayer } from "../../utils/mapTileUtils"; // Import the enum
+  import TileLayer from "ol/layer/Tile";
+  import XYZ from "ol/source/XYZ";
 
-  let showModal = false;
+  let showModal = true;
   let mapContainer: HTMLElement;
   let featuresSelected = false; // Track if features are selected
   let isMoveMode = true; // Track if the move mode is active
   let isModifyMode = false; // Track if the modify mode is active
+
+  let mapUrl = ""; // Variable to hold the input value
 
   function toggleModal() {
     showModal = !showModal;
@@ -111,6 +116,36 @@
     attributionText.set("TerraSketch");
   }
 
+  function changeToCustom(mapUrl: string) {
+
+
+    if(mapUrl !== '') {
+      const customLayer: TileLayer<XYZ> = new TileLayer({
+      source: new XYZ({
+        url: mapUrl,
+        maxZoom: 18,
+      }),
+    });
+
+    
+    const layers = map.getLayers();
+    const layersArray = layers.getArray();
+    const markerAndVectorLayers = layersArray.slice(1); // Keep all layers except the first base layer
+    layers.clear(); // Clear existing layers
+    layers.push(customLayer); // Add the new base layer
+    markerAndVectorLayers.forEach((existingLayer) =>
+      layers.push(existingLayer)
+    ); // Add remaining layers
+    
+    moveToLocation(0, 0, 2);
+    attributionText.set("Custom");
+    }
+    else {
+      alert('Type in the XYZ url');
+    }
+  
+  }
+
   onMount(() => {
     if (mapContainer) {
       initializeMap(mapContainer); // Initialize map with the container
@@ -178,6 +213,13 @@
     >
     <button class="settings-tile" on:click={changeToJapanGsi}>Japan</button>
     <button class="settings-tile" on:click={changeToKoreaNaver}>Korea</button>
+    <input type="text" id="mapUrl" bind:value={mapUrl} placeholder="Type in url..." />
+
+    <button
+      on:click={() => {
+        changeToCustom(mapUrl);
+      }}>set map</button
+    >
   </div>
 </Modal>
 
