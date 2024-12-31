@@ -19,7 +19,7 @@
   import TileLayer from "ol/layer/Tile";
   import XYZ from "ol/source/XYZ";
 
-  let showModal = true;
+  let showModal = false;
   let mapContainer: HTMLElement;
   let featuresSelected = false; // Track if features are selected
   let isMoveMode = true; // Track if the move mode is active
