@@ -362,7 +362,7 @@ export function initializeMap(target: HTMLElement) {
   map = new OLMap({
     target: target,
     layers: [
-      mapTileLayers.osm, // Default base layer
+      mapTileLayers.blank, // Default base layer
     ],
     view: new View({
       center: fromLonLat([0, 0]),
