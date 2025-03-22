@@ -1,36 +1,29 @@
+import { fromGeo } from "@bte-germany/terraconvert";
+import { default as Collection } from "ol/Collection";
+import { default as Feature } from "ol/Feature";
 import OLMap from "ol/Map";
 import View from "ol/View";
+import { defaults as defaultControls } from "ol/control";
+import { click } from "ol/events/condition";
+import type { Extent } from "ol/extent";
+import { GeoJSON } from "ol/format"; // Import GeoJSON format for handling GeoJSON data
+import { Polygon } from "ol/geom";
+import { defaults as defaultInteractions, DragRotate } from "ol/interaction";
+import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
+import Draw, { createBox } from "ol/interaction/Draw";
+import Modify from "ol/interaction/Modify";
+import Select from "ol/interaction/Select";
+import Translate from "ol/interaction/Translate";
 import VectorLayer from "ol/layer/Vector";
-import VectorSource from "ol/source/Vector";
-import Feature from "ol/Feature";
-import { Style, Fill, Stroke } from "ol/style";
 import {
   fromLonLat,
   toLonLat,
-  transform,
-  get as getProjection,
-  type ProjectionLike,
-  transformExtent,
+  transform
 } from "ol/proj";
-import Draw, { createBox } from "ol/interaction/Draw";
-import Select from "ol/interaction/Select";
-import Translate from "ol/interaction/Translate";
-import Modify from "ol/interaction/Modify";
-import { click } from "ol/events/condition";
-import Collection from "ol/Collection";
-import { defaults as defaultControls } from "ol/control";
-import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
-import { defaults as defaultInteractions, DragRotate } from "ol/interaction";
-import { MapTileLayer, mapTileLayers } from "./mapTileUtils";
-import { GeoJSON } from "ol/format"; // Import GeoJSON format for handling GeoJSON data
+import VectorSource from "ol/source/Vector";
+import { Fill, Stroke, Style } from "ol/style";
 import { writable } from "svelte/store";
-import { fromGeo } from "@bte-germany/terraconvert";
-import { Polygon } from "ol/geom";
-import type { Extent } from "ol/extent";
-import GeoImage from "ol-ext/layer/GeoImage";
-import GeoImageSource from "ol-ext/source/GeoImage";
-import ImageLayer from "ol/layer/Image";
-import ImageStatic from "ol/source/ImageStatic";
+import { MapTileLayer, mapTileLayers } from "./mapTileUtils";
 
 // Create a Svelte store to keep track of the selected feature type
 export const selectedFeature = writable<Feature | null>(null);
@@ -373,7 +366,7 @@ export function initializeMap(target: HTMLElement) {
     ],
     view: new View({
       center: fromLonLat([0, 0]),
-      zoom: 17,
+      zoom: 3,
     }),
     controls: defaultControls({
       zoom: false,
