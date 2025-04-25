@@ -79,6 +79,7 @@ type BlockID = number;
 export function createSchematic(
   features: FeatureExport[],
   versionNo: number,
+  isOffsetEnabled: boolean,
 ): void {
   const xCoordinates = features.flatMap((feature) =>
     feature.coords.map((coord) => coord[0])
@@ -88,10 +89,10 @@ export function createSchematic(
   );
 
   // Find the minimum and maximum X values
-  const minX = Math.min(...xCoordinates);
-  const maxX = Math.max(...xCoordinates);
-  const minZ = Math.min(...zCoordinates);
-  const maxZ = Math.max(...zCoordinates);
+  const minX = xCoordinates.reduce((min, val) => Math.min(min, val), Infinity);
+  const maxX = xCoordinates.reduce((max, val) => Math.max(max, val), -Infinity);
+  const minZ = zCoordinates.reduce((min, val) => Math.min(min, val), Infinity);
+  const maxZ = zCoordinates.reduce((max, val) => Math.max(max, val), -Infinity);
 
   // Extract all elevation values (both start and end)
   const elevations = features.flatMap((feature) => [
@@ -206,7 +207,7 @@ export function createSchematic(
       Metadata: { type: TagType.Compound, value: {} },
       Offset: {
         type: TagType.IntArray,
-        value: [Math.ceil(minX), Math.ceil(minY), Math.ceil(minZ)],
+        value: [isOffsetEnabled ? Math.ceil(minX) + -13379008 : Math.ceil(minX), Math.ceil(minY), isOffsetEnabled ? Math.ceil(minZ) + 2727648 : Math.ceil(minZ)],
       },
     },
   };
@@ -223,7 +224,7 @@ export function createSchematic(
   // Create a link to download the Blob as a .schem file
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "testing.schem";
+  link.download = "terrasketch.schem";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -238,10 +239,10 @@ export function getDimensions(features: FeatureExport[]) {
   );
 
   // Find the minimum and maximum X values
-  const minX = Math.min(...xCoordinates);
-  const maxX = Math.max(...xCoordinates);
-  const minZ = Math.min(...zCoordinates);
-  const maxZ = Math.max(...zCoordinates);
+  const minX = xCoordinates.reduce((min, val) => Math.min(min, val), Infinity);
+  const maxX = xCoordinates.reduce((max, val) => Math.max(max, val), -Infinity);
+  const minZ = zCoordinates.reduce((min, val) => Math.min(min, val), Infinity);
+  const maxZ = zCoordinates.reduce((max, val) => Math.max(max, val), -Infinity);
 
   // Extract all elevation values (both start and end)
   const elevations = features.flatMap((feature) => [

@@ -83,8 +83,7 @@
         setActiveLayer(firstId);
         selectedLayerId = firstId;
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   });
 
   // Function to add a new layer
@@ -104,7 +103,7 @@
   function deleteLayer() {
     if (
       confirm(
-        "Are you sure you want to delete this layer? This action cannot be reversed!"
+        "Are you sure you want to delete this layer? This action cannot be reversed!",
       )
     ) {
       if (selectedLayerId) {
@@ -156,7 +155,6 @@
         layers.push({ id: newLayerId, name: file.name, visible: true });
         setActiveLayer(newLayerId);
         selectedLayerId = newLayerId;
-
       } catch (error) {
         alert("Error importing GeoJSON file: " + error);
       }
@@ -224,7 +222,7 @@
               if (latLngCoordinates.length >= 2) {
                 const circleVertices = generateCircleVertices(
                   [latLngCoordinates[0], latLngCoordinates[1]],
-                  100
+                  100,
                 );
                 featureExport.coords = circleVertices;
               }
@@ -251,10 +249,20 @@
         });
       }
 
-      const dimensions = getDimensions(newFinalList);
+      if (newFinalList.length == 0) {
+        exportLength = 0;
+        exportHeight = 0;
+        exportWidth = 0;
+      } else {
+        const dimensions = getDimensions(newFinalList);
 
-      exportSize = `length: ${dimensions.length + 1} height: ${dimensions.height + 1} width: ${dimensions.width + 1}`;
+        exportLength = dimensions.length;
+        exportHeight = dimensions.height;
+        exportWidth = dimensions.width;
+      }
+
       schematicFeatureList = newFinalList;
+      toggleModal();
     } else {
       alert("No layer selected.");
     }
@@ -262,7 +270,7 @@
 
   // Function to get features of the selected layer
   function getFeaturesOfSelectedLayer(
-    layerId: string
+    layerId: string,
   ): Feature<Geometry>[] | null {
     const map = getMap();
     const layer = map
@@ -303,7 +311,11 @@
 
   let selectedOption: string = "Schematic";
   let selectedVersion: string = "2";
-  let exportSize: string = "";
+
+  let exportLength: number = 0;
+  let exportHeight: number = 0;
+  let exportWidth: number = 0;
+
   let schematicFeatureList: FeatureExport[] = [];
 
   // Function to select an option
@@ -313,6 +325,12 @@
 
   function handleVersionChange(event: any) {
     selectedVersion = event.target.value;
+  }
+
+  let isOffsetEnabled:boolean = false;
+
+  function createSchematicWithOffset() {
+    createSchematic(schematicFeatureList, parseInt(selectedVersion), isOffsetEnabled);
   }
 </script>
 
@@ -327,7 +345,6 @@
     />
     <WindowButton
       onClick={() => {
-        toggleModal();
         convertAndGetDimensions();
       }}
       iconClass="fas fa-upload"
@@ -407,11 +424,46 @@
         </select>
       </div>
       <div class="info">
-        <span>Dimensions: {exportSize ? exportSize : "-"}</span>
+        <div class="measurement-container">
+          <span class="measurement">Length: {exportLength}</span>
+          <span class="measurement">Width: {exportWidth}</span>
+          <span class="measurement">Height: {exportHeight}</span>
+        </div>
+        {#if exportHeight >= 5000 || exportWidth >= 5000 || exportLength >= 5000}
+          <div class="warning">
+            ⚠️ Warning: One or more dimensions exceed the 5000 limit.
+          </div>
+        {/if}
+      </div>
+      <div>
+        <span>ASEAN offset</span>
+        <input
+          type="checkbox"
+          on:click={(event) => {
+            event.stopPropagation();
+            isOffsetEnabled = !isOffsetEnabled;
+          }}
+          checked={isOffsetEnabled}
+        />
       </div>
       <button
         on:click={() => {
-          createSchematic(schematicFeatureList, parseInt(selectedVersion));
+          if (
+            exportHeight >= 5000 ||
+            exportWidth >= 5000 ||
+            exportLength >= 5000
+          ) {
+            let userChoice = confirm(
+              "Warning: Layer size is more than 5000 blocks. Try to reduce the size. This may crash your browser!",
+            );
+
+            if (userChoice) {
+              createSchematicWithOffset();
+            } else {
+            }
+          } else {
+            createSchematicWithOffset();
+          }
         }}
         class="export-btn">Export</button
       >
@@ -579,18 +631,36 @@
     flex-direction: column;
 
     .info {
-      padding: 4px 0px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
 
-      select {
-        font-size: 0.8rem;
-        outline: none;
-        padding: 4px;
+      p {
+        margin: 0;
       }
 
-      label,
-      span {
+      .measurement-container {
+        display: flex;
+        width: 100%;
+        margin-top: 12px;
+        margin-bottom: 12px;
+
+        .measurement {
+          flex: 1;
+          text-align: center;
+          padding: 0.5rem;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          font-weight: bold;
+          letter-spacing: 2px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      .warning {
         font-size: 0.8rem;
-        letter-spacing: 1px;
+        margin-bottom: 20px;
       }
     }
 
