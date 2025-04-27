@@ -22,8 +22,8 @@ export enum MapTileLayer {
 }
 
 // Define the maximum zoom levels
-const maxZoom = 19;
-const maxZoomOSM = 18;
+const maxZoom = 20;
+const maxZoomOSM = 20;
 
 // Create the OneMap tile layer
 const SingaporeOneMapLayer: TileLayer<XYZ> = new TileLayer({
