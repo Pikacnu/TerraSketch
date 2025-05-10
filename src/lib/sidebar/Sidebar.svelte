@@ -123,7 +123,7 @@
       const customLayer: TileLayer<XYZ> = new TileLayer({
       source: new XYZ({
         url: mapUrl,
-        maxZoom: 18,
+        maxZoom: 20,
       }),
     });
 
