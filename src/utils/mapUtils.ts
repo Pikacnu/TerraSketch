@@ -34,6 +34,7 @@ let selectInteraction: Select | null = null;
 let translateInteraction: Translate | null = null;
 let modifyInteraction: Modify | null = null;
 let doubleClickZoomInteraction: DoubleClickZoom | null = null;
+let mapMoveTimeout: number | null = null;
 
 // Manage multiple vector layers using a plain object
 export let vectorLayers: { [key: string]: VectorLayer } = {};
@@ -359,14 +360,16 @@ function addRightClickListener(map: OLMap) {
 
 // Initializes the map
 export function initializeMap(target: HTMLElement) {
+  const savedState = restoreMapState();
+  
   map = new OLMap({
     target: target,
     layers: [
-      mapTileLayers.blank, // Default base layer
+      mapTileLayers[MapTileLayer.OSM], // Default to OSM layer instead of blank
     ],
     view: new View({
-      center: fromLonLat([0, 0]),
-      zoom: 3,
+      center: savedState ? fromLonLat([savedState.lon, savedState.lat]) : fromLonLat([0, 0]),
+      zoom: savedState ? savedState.zoom : 3,
     }),
     controls: defaultControls({
       zoom: false,
@@ -385,6 +388,28 @@ export function initializeMap(target: HTMLElement) {
         },
       }),
     ]),
+  });
+
+  // Add listener for when map movement ends
+  map.getView().on('change:center', () => {
+    // Clear any existing timeout
+    if (mapMoveTimeout) {
+      clearTimeout(mapMoveTimeout);
+    }
+    // Set a new timeout
+    mapMoveTimeout = window.setTimeout(() => {
+      saveMapState(); // Save the map state when movement stops
+    }, 150); // 150ms delay to ensure the movement has actually stopped
+  });
+
+  // Also save state when zoom changes
+  map.getView().on('change:resolution', () => {
+    if (mapMoveTimeout) {
+      clearTimeout(mapMoveTimeout);
+    }
+    mapMoveTimeout = window.setTimeout(() => {
+      saveMapState();
+    }, 150);
   });
 
   doubleClickZoomInteraction = map
@@ -817,4 +842,32 @@ export function addPolygonToLayer(
     return;
   }
   source.addFeature(feature);
+}
+
+function saveMapState() {
+  const view = map.getView();
+  const center = view.getCenter();
+  const zoom = view.getZoom();
+  
+  if (center) {
+    const [lon, lat] = toLonLat(center);
+    localStorage.setItem('mapState', JSON.stringify({
+      lat,
+      lon,
+      zoom
+    }));
+  }
+}
+
+function restoreMapState(): { lat: number; lon: number; zoom: number } | null {
+  const savedState = localStorage.getItem('mapState');
+  if (savedState) {
+    try {
+      return JSON.parse(savedState);
+    } catch (e) {
+      console.error('Error parsing saved map state:', e);
+      return null;
+    }
+  }
+  return null;
 }

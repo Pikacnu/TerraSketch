@@ -560,7 +560,7 @@
           padding: 8px;
           background: rgba(0, 0, 0, 0.4);
           color: white;
-          font-size: 0.8rem;
+          font-size: 0.7rem;
           outline: none;
         }
       }

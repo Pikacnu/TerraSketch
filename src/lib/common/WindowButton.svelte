@@ -12,7 +12,7 @@
 
 <button 
     class="btn" 
-    style="width: {flexGrow ? 'auto' : width}; flex-grow: {flexGrow ? 1 : 0}; min-height: {minHeight};" 
+    style="width: {flexGrow ? 'auto' : width}; flex-grow: {flexGrow ? 1 : 0};" 
     on:click={onClick}
 >
     <i class={iconClass}></i>
@@ -21,12 +21,11 @@
 
 <style lang="scss">
     .btn {
-        flex: 1;
-        min-height: 32px;
+        height: 28px;
         background: rgba(255, 255, 255, 0.1);
         color: white;
-        padding: 8px;
-        font-size: 0.8rem;
+        padding: 0 6px;
+        font-size: 0.7rem;
         border: 1px solid rgba(255, 255, 255, 0.05);
         display: flex;
         align-items: center;
@@ -36,7 +35,7 @@
         user-select: none;
 
         i {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             padding-right: 4px;
         }
 

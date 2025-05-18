@@ -101,7 +101,7 @@
           placeholder="Move to location..."
           bind:value={searchCoordinates}
         />
-        <Button onClick={moveToCoordinates} iconClass="fas fa-search" label="" width="36px" height="36px" />
+        <Button onClick={moveToCoordinates} iconClass="fas fa-search" label="" width="28px" height="28px" />
       </div>
       <div class="windows" id="windowsContainer">
         <FirstWindow onResize={handleMouseDownWindow} />
@@ -118,10 +118,11 @@
       overflow: auto;
       box-sizing: border-box;
       display: flex;
+      height: 100%;
     }
   
     .resize-handle {
-      width: 12px;
+      width: 8px;
       height: 100%;
       cursor: ew-resize;
       display: flex;
@@ -140,13 +141,14 @@
       display: flex;
       flex-direction: column;
       flex: 1;
-      padding: 12px 12px 6px 0px;
+      padding: 6px 6px 6px 0px;
+      height: 100%;
   
       .search-container {
         display: flex;
         margin-bottom: 6px;
         width: 100%;
-        height: 36px;
+        height: 28px;
   
         #search {
           border: none;
@@ -164,7 +166,10 @@
       }
   
       .windows {
-        height: calc(100% - 36px);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
     }
   </style>

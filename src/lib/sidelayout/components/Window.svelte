@@ -14,12 +14,10 @@
 		selectedTab = tabIndex;
 	}
 
-
 	onMount(() => {
 		const element = document.getElementById("windowsContainer");
 		const rect = element!.getBoundingClientRect();
 	});
-
 </script>
 
 <div class="window" style="position: relative;">
@@ -35,9 +33,6 @@
 			<svelte:component this={components[tabNames[selectedTab]]} />
 		{/if}
 	</div>
-	{#if index < 2}
-		<!-- <ResizeHandleHorizontal onMouseDown={(event) => onResize(event, index)} /> -->
-	{/if}
 </div>
 
 <style lang="scss">
@@ -45,15 +40,20 @@
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		align-items: center;
 		position: relative;
 		height: calc(100%/3);
+		margin-bottom: 6px;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+
 		.tabs {
 			width: 100%;
-			height: 32px;
+			height: 28px;
 			display: flex;
 			align-items: center;
+			background: rgba(255, 255, 255, 0.02);
 
 			span {
                 position: relative;
@@ -65,7 +65,7 @@
 				cursor: pointer;
 				background: transparent;
 				transition: background 0.3s ease;
-				height: 32px;
+				height: 28px;
 				display: flex;
 				justify-content: center;
 				align-items: center;
@@ -73,32 +73,31 @@
                 border: 1px solid rgba(255, 255, 255, 0);
 
 				&.selected {
-					background: rgba(255, 255, 255, 0.05); // Match the content background
+					background: rgba(255, 255, 255, 0.05);
                     border: 1px solid rgba(255, 255, 255, 0.1);
 
                     &::before {
                     width: 100%;
                     height: 4px;
                     content: '';
-					background: #232425; /* Color for the content */
-					position: absolute; /* Optional: to position it relative to the div */
+					background: #232425;
+					position: absolute;
 					bottom: -3px;
 				}
 				}
 
 				&:hover {
-					background: rgba(255, 255, 255, 0.1); // Slight hover effect
+					background: rgba(255, 255, 255, 0.1);
 				}
-
-			
 			}
 		}
 
 		.content {
+			flex: 1;
 			width: 100%;
-			height: calc(100% - 32px - 12px);
 			background: rgba(255, 255, 255, 0.05);
 			border: 1px solid rgba(255, 255, 255, 0.1);
+			overflow: auto;
 		}
 	}
 </style>

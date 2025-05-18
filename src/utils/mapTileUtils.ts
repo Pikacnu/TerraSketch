@@ -30,42 +30,66 @@ const SingaporeOneMapLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'https://www.onemap.gov.sg/maps/tiles/Satellite/{z}/{x}/{y}.png',
     maxZoom: maxZoom,
+    transition: 0,
+    crossOrigin: 'anonymous',
+    cacheSize: 512,
   }),
+  preload: 1,
 });
 
 const HongKongGeoDataLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/WGS84/{z}/{x}/{y}.png',
     maxZoom: maxZoom,
+    transition: 0,
+    crossOrigin: 'anonymous',
+    cacheSize: 512,
   }),
+  preload: 1,
 });
 
 const TaiwanNlscLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}.png',
     maxZoom: maxZoom,
+    transition: 0,
+    crossOrigin: 'anonymous',
+    cacheSize: 512,
   }),
+  preload: 1,
 });
 
 const TaiwanTaipeiUddLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2023/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2023/default/default028mm/{z}/{y}/{x}.png',
     maxZoom: maxZoom,
+    transition: 0,
+    crossOrigin: 'anonymous',
+    cacheSize: 512,
   }),
+  preload: 1,
 });
 
 const JapanGsiLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'http://maps.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
     maxZoom: maxZoom,
+    transition: 0,
+    crossOrigin: 'anonymous',
+    cacheSize: 512,
   }),
+  preload: 1,
 });
 
 const KoreaNaverLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'https://map.pstatic.net/nrb/styles/satellite/{z}/{x}/{y}.png',
     maxZoom: maxZoom,
+    transition: 0,
+    crossOrigin: 'anonymous',
+    cacheSize: 512,
   }),
+  preload: 1,
 });
 
 // Create the OpenStreetMap tile layer
@@ -73,7 +97,11 @@ const osmLayer: TileLayer<XYZ> = new TileLayer({
   source: new XYZ({
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     maxZoom: maxZoomOSM,
+    transition: 0,
+    crossOrigin: 'anonymous',
+    cacheSize: 512,
   }),
+  preload: 1,
 });
 
 // Set up projection and tile grid for the blank layer

@@ -76,74 +76,62 @@
 
   function changeToSingaporeOneMap() {
     changeMapTileLayer(MapTileLayer.SgOneMap);
-    moveToLocation(1.2968385068315018, 103.84873212021657, 16);
     attributionText.set("Singapore Land Authority");
   }
 
   function changeToHongKongGeodata() {
     changeMapTileLayer(MapTileLayer.HkGeoData);
-    moveToLocation(22.317398261032935, 114.17602235778912, 16);
     attributionText.set("Hong Kong Geodata");
   }
 
   function changeToTaiwanNlsc() {
     changeMapTileLayer(MapTileLayer.TwNlsc);
-    moveToLocation(25.043068726118506, 121.51940799136668, 16);
     attributionText.set("Taiwan NLSC");
   }
 
   function changeToTaiwanTaipeiUdd() {
     changeMapTileLayer(MapTileLayer.TwTpeUdd);
-    moveToLocation(25.043068726118506, 121.51940799136668, 16);
     attributionText.set("Taipei UDD");
   }
 
   function changeToJapanGsi() {
     changeMapTileLayer(MapTileLayer.JpGsi);
-    moveToLocation(35.70385573841528, 139.74940023465922, 16);
     attributionText.set("Japan GSI");
   }
 
   function changeToKoreaNaver() {
     changeMapTileLayer(MapTileLayer.KrNaver);
-    moveToLocation(37.53071864244086, 127.001106171178, 16);
     attributionText.set("Korea Naver Maps");
   }
 
   function changeToBlank() {
     changeMapTileLayer(MapTileLayer.Blank);
-    moveToLocation(0, 0, 2);
     attributionText.set("TerraSketch");
   }
 
   function changeToCustom(mapUrl: string) {
-
-
     if(mapUrl !== '') {
       const customLayer: TileLayer<XYZ> = new TileLayer({
-      source: new XYZ({
-        url: mapUrl,
-        maxZoom: 20,
-      }),
-    });
+        source: new XYZ({
+          url: mapUrl,
+          maxZoom: 20,
+        }),
+      });
 
-    
-    const layers = map.getLayers();
-    const layersArray = layers.getArray();
-    const markerAndVectorLayers = layersArray.slice(1); // Keep all layers except the first base layer
-    layers.clear(); // Clear existing layers
-    layers.push(customLayer); // Add the new base layer
-    markerAndVectorLayers.forEach((existingLayer) =>
-      layers.push(existingLayer)
-    ); // Add remaining layers
-    
-    moveToLocation(0, 0, 2);
-    attributionText.set("Custom");
+      const layers = map.getLayers();
+      const layersArray = layers.getArray();
+      const markerAndVectorLayers = layersArray.slice(1); // Keep all layers except the first base layer
+      layers.clear(); // Clear existing layers
+      layers.push(customLayer); // Add the new base layer
+      markerAndVectorLayers.forEach((existingLayer) =>
+        layers.push(existingLayer)
+      ); // Add remaining layers
+      
+      attributionText.set("Custom");
     }
     else {
       alert('Type in the XYZ url');
     }
-  
   }
 
   onMount(() => {
